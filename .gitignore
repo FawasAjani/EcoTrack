@@ -1,0 +1,14 @@
+# Dependencies and generated files
+node_modules/
+dist/
+.angular/
+coverage/
+
+# Environment files and secrets
+.env
+.env.*
+!.env.example
+
+# Operating system files
+.DS_Store
+Thumbs.db
