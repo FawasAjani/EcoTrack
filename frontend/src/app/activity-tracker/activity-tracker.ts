@@ -63,4 +63,13 @@ export class ActivityTracker {
     this.distance = null;
   }
 
+  deleteActivity(index: number) {
+
+    const confirmed = confirm('Are you sure you want to delete this activity?');
+
+    if (confirmed) {
+      this.activities.splice(index, 1);
+    }
+  }
+
 }

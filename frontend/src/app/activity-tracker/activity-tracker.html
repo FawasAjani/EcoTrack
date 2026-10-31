@@ -127,6 +127,13 @@
 
           <p><strong>Date:</strong> {{ activity.date }}</p>
           <p><strong>Distance:</strong> {{ activity.distance }} km</p>
+
+          <button
+            type="button"
+            class="delete-button"
+            (click)="deleteActivity($index)">
+            Delete
+          </button>
         </div>
       }
     }
