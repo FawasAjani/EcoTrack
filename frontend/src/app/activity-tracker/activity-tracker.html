@@ -1,0 +1,138 @@
+
+<nav class="navbar">
+  <a routerLink="/home" class="brand">EcoTrack</a>
+  <div class="nav-links">
+    <a routerLink="/home">Dashboard</a>
+    <a routerLink="/activity-tracker">Activity Tracker</a>
+  </div>
+</nav>
+
+<main class="tracker-container">
+  <section class="tracker-header">
+    <h1>Activity Tracker</h1>
+    <p>Record your journeys and track your environmental impact.</p>
+  </section>
+
+  <section class="activity-form-section">
+    <h2>Add a New Activity</h2>
+
+    <form #activityForm="ngForm" (ngSubmit)="addActivity()">
+
+      <div class="form-group">
+        <label for="activityType">Transport Type</label>
+        <select
+          id="activityType"
+          name="activityType"
+          [(ngModel)]="activityType"
+          (ngModelChange)="fuelType = ''"
+          required>
+          <option value="">Select transport type</option>
+          <option value="Car">Car</option>
+          <option value="Bus">Bus</option>
+          <option value="Train">Train</option>
+          <option value="Cycling">Cycling</option>
+          <option value="Walking">Walking</option>
+        </select>
+      </div>
+
+      @if (activityType === 'Car') {
+        <div class="form-group">
+          <label for="fuelType">Fuel Type</label>
+          <select
+            id="fuelType"
+            name="fuelType"
+            [(ngModel)]="fuelType"
+            required>
+            <option value="">Select fuel type</option>
+            <option value="Petrol">Petrol</option>
+            <option value="Diesel">Diesel</option>
+            <option value="Electric">Electric</option>
+            <option value="Hybrid">Hybrid</option>
+          </select>
+        </div>
+      }
+
+      <div class="form-group">
+        <label for="purpose">Journey Purpose</label>
+        <select
+          id="purpose"
+          name="purpose"
+          [(ngModel)]="purpose"
+          required>
+          <option value="">Select journey purpose</option>
+          <option value="College">College</option>
+          <option value="Work">Work</option>
+          <option value="Shopping">Shopping</option>
+          <option value="Exercise">Exercise</option>
+          <option value="Leisure">Leisure</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="description">Journey Description (Optional)</label>
+        <textarea
+          id="description"
+          name="description"
+          [(ngModel)]="description"
+          placeholder="e.g. Home to college"
+          rows="3">
+        </textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="activityDate">Date</label>
+        <input
+          type="date"
+          id="activityDate"
+          name="activityDate"
+          [(ngModel)]="activityDate"
+          required>
+      </div>
+
+      <div class="form-group">
+        <label for="distance">Distance (km)</label>
+        <input
+          type="number"
+          id="distance"
+          name="distance"
+          [(ngModel)]="distance"
+          min="0.1"
+          step="0.1"
+          placeholder="Enter distance in kilometres"
+          required>
+      </div>
+
+      <button type="submit" [disabled]="activityForm.invalid">
+        Add Activity
+      </button>
+    </form>
+  </section>
+
+  <section class="recorded-activities">
+    <h2>Recorded Activities</h2>
+
+    @if (activities.length === 0) {
+      <p>No activities recorded yet. Add your first activity above.</p>
+    } @else {
+      @for (activity of activities; track $index) {
+        <div class="activity-card">
+          <h3>{{ activity.type }}</h3>
+          <p><strong>Fuel Type:</strong> {{ activity.fuelType }}</p>
+          <p><strong>Journey Purpose:</strong> {{ activity.purpose }}</p>
+
+          @if (activity.description) {
+            <p><strong>Description:</strong> {{ activity.description }}</p>
+          }
+
+          <p><strong>Date:</strong> {{ activity.date }}</p>
+          <p><strong>Distance:</strong> {{ activity.distance }} km</p>
+        </div>
+      }
+    }
+  </section>
+</main>
+
+<footer>
+  <p>EcoTrack - Track your footprint, make a difference.</p>
+</footer>
