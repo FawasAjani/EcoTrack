@@ -1,6 +1,6 @@
+
 <div class="home-page">
 
-  <!-- Navigation -->
   <nav class="navbar">
     <a class="brand" routerLink="/home">EcoTrack</a>
 
@@ -14,16 +14,15 @@
     </div>
   </nav>
 
-  <!-- Welcome Section -->
   <main class="main-content">
 
     <section class="welcome-section">
       <div class="welcome-text">
         <span class="welcome-label">YOUR SUSTAINABLE JOURNEY STARTS HERE</span>
-        <h1>Welcome to EcoTrack</h1>
+        <h1>Make every journey count.</h1>
         <p>
-          Understand your carbon footprint, monitor your daily activities
-          and discover simple ways to protect our planet.
+          Understand your carbon footprint, monitor your everyday activities
+          and discover practical ways to live more sustainably.
         </p>
 
         <a routerLink="/activity-tracker" class="primary-button">
@@ -36,66 +35,117 @@
       </div>
     </section>
 
-    <!-- Dashboard Introduction -->
     <section class="dashboard-heading">
-      <h2>Your Carbon Dashboard</h2>
-      <p>Your environmental impact at a glance.</p>
+      <div>
+        <span class="section-label">YOUR OVERVIEW</span>
+        <h2>Your Carbon Dashboard</h2>
+        <p>Understand your environmental impact at a glance.</p>
+      </div>
     </section>
 
-    <!-- Emissions Summary -->
     <section class="summary-grid">
 
-      <div class="summary-card">
+      <article class="summary-card">
         <span class="card-icon">🌍</span>
         <h3>Total Emissions</h3>
-        <p class="summary-value">Not available yet</p>
-        <small>Your recorded carbon footprint</small>
-      </div>
+        <p class="summary-value">Awaiting data</p>
+        <small>Your overall recorded carbon footprint</small>
+      </article>
 
-      <div class="summary-card">
+      <article class="summary-card">
         <span class="card-icon">📅</span>
         <h3>Daily Emissions</h3>
-        <p class="summary-value">Not available yet</p>
-        <small>Your daily carbon footprint</small>
-      </div>
+        <p class="summary-value">Awaiting data</p>
+        <small>Your estimated daily footprint</small>
+      </article>
 
-      <div class="summary-card">
+      <article class="summary-card">
         <span class="card-icon">📊</span>
         <h3>Weekly Emissions</h3>
-        <p class="summary-value">Not available yet</p>
-        <small>Your weekly carbon footprint</small>
-      </div>
+        <p class="summary-value">Awaiting data</p>
+        <small>Your estimated weekly footprint</small>
+      </article>
 
     </section>
 
-    <!-- Quick Features -->
+    <section class="dashboard-grid">
+
+      <article class="dashboard-panel emissions-panel">
+        <div class="panel-heading">
+          <div>
+            <span class="section-label">YOUR PROGRESS</span>
+            <h2>Emissions Overview</h2>
+          </div>
+          <span class="panel-icon">📈</span>
+        </div>
+
+        <div class="chart-placeholder">
+          <span>📊</span>
+          <h3>Emissions chart coming soon</h3>
+          <p>
+            Your emissions trends will appear here once activity
+            data and emission calculations are connected.
+          </p>
+        </div>
+      </article>
+
+      <article class="dashboard-panel tips-panel">
+        <div class="panel-heading">
+          <div>
+            <span class="section-label">SMALL CHANGES MATTER</span>
+            <h2>Eco Tip</h2>
+          </div>
+          <span class="panel-icon">🌿</span>
+        </div>
+
+        <div class="tip-content">
+          <h3>Consider greener journeys</h3>
+          <p>
+            For suitable short journeys, consider walking or cycling
+            instead of using a car. This can help reduce transport emissions.
+          </p>
+        </div>
+      </article>
+
+    </section>
+
     <section class="features-section">
-      <h2>Explore EcoTrack</h2>
+      <div class="section-heading">
+        <div>
+          <span class="section-label">EXPLORE YOUR TOOLS</span>
+          <h2>Explore EcoTrack</h2>
+          <p>Everything you need to understand your environmental impact.</p>
+        </div>
+      </div>
 
       <div class="features-grid">
 
         <a routerLink="/activity-tracker" class="feature-card">
-          <span>🚶</span>
+          <span class="feature-icon">🚶</span>
           <h3>Activity Tracker</h3>
-          <p>Record everyday activities and monitor their emissions.</p>
+          <p>Record everyday journeys and monitor your transport activities.</p>
+          <span class="feature-link">Start tracking →</span>
         </a>
 
         <a routerLink="/weekly-summary" class="feature-card">
-          <span>📈</span>
+          <span class="feature-icon">📈</span>
           <h3>Weekly Summary</h3>
-          <p>Review your carbon footprint throughout the week.</p>
+          <p>Review and understand your carbon footprint over time.</p>
+          <span class="feature-link">View summary →</span>
         </a>
 
         <a routerLink="/food-tracker" class="feature-card">
-          <span>🥗</span>
+          <span class="feature-icon">🥗</span>
           <h3>Food Tracker</h3>
-          <p>Understand the environmental impact of your food choices.</p>
+          <p>Explore the environmental impact of your food choices.</p>
+          <span class="feature-link">Track food →</span>
         </a>
 
         <a routerLink="/eco-assistant" class="feature-card">
-          <span>💬</span>
+          <span class="feature-icon">💬</span>
           <h3>Eco Assistant</h3>
-          <p>Explore ways to understand and reduce your carbon footprint.</p>
+          <p>Discover practical ideas for reducing your environmental impact.</p>
+          <span class="feature-link">Explore tips →</span>
         </a>
 
       </div>
@@ -103,7 +153,6 @@
 
   </main>
 
-  <!-- Footer -->
   <footer class="footer">
     <p>EcoTrack | Track Your Impact. Protect Our Planet.</p>
   </footer>
