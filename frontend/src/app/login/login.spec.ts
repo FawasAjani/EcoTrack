@@ -9,6 +9,7 @@ describe('Login', () => {
   let fixture: ComponentFixture<Login>;
   let router: { navigate: ReturnType<typeof vi.fn> };
 
+  // Configure the testing environment and create the Login component.
   beforeEach(async () => {
     router = {
       navigate: vi.fn()
@@ -26,10 +27,12 @@ describe('Login', () => {
     fixture.detectChanges();
   });
 
+  // Verify that the Login component is created successfully.
   it('should create the login component', () => {
     expect(component).toBeTruthy();
   });
 
+  // Verify that the email and password input fields are displayed.
   it('should display the email and password fields', () => {
     const compiled = fixture.nativeElement as HTMLElement;
 
@@ -37,22 +40,22 @@ describe('Login', () => {
     expect(compiled.querySelector('#password')).toBeTruthy();
   });
 
-  it('should show an alert when the form is invalid', () => {
-    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+  // Verify that invalid form input produces the expected validation message.
+  it('should show a validation message when the form is invalid', async () => {
+    await component.onSubmit();
 
-    component.onSubmit();
-
-    expect(alertSpy).toHaveBeenCalledWith(
+    expect(component.message).toBe(
       'Please enter a valid email address and password.'
     );
-
-    alertSpy.mockRestore();
+    expect(component.messageType).toBe('error');
+    expect(component.email.touched).toBe(true);
+    expect(component.password.touched).toBe(true);
   });
 
+  // Verify that the signup navigation method is available.
   it('should request navigation to signup', () => {
-    // The current component uses window.location.href for signup.
-    // We will test this navigation separately if the browser environment
-    // prevents it from being changed in Vitest.
-    expect(component.onSignup).toBeTypeOf('function');
+    component.onSignup();
+
+    expect(router.navigate).toHaveBeenCalledWith(['/signup']);
   });
 });
