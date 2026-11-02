@@ -2,15 +2,7 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-
-interface Activity {
-  type: string;
-  fuelType: string;
-  purpose: string;
-  description: string;
-  date: string;
-  distance: number;
-}
+import { Activity, ActivityService } from '../services/activity';
 
 @Component({
   selector: 'app-activity-tracker',
@@ -28,10 +20,13 @@ export class ActivityTracker {
   activityDate = '';
   distance: number | null = null;
 
-  activities: Activity[] = [];
+  constructor(private activityService: ActivityService) {}
+
+  get activities(): Activity[] {
+    return this.activityService.getActivities();
+  }
 
   addActivity() {
-
     if (
       !this.activityType ||
       !this.purpose ||
@@ -53,7 +48,7 @@ export class ActivityTracker {
       distance: this.distance
     };
 
-    this.activities.push(newActivity);
+    this.activityService.addActivity(newActivity);
 
     this.activityType = '';
     this.fuelType = '';
@@ -64,12 +59,10 @@ export class ActivityTracker {
   }
 
   deleteActivity(index: number) {
-
     const confirmed = confirm('Are you sure you want to delete this activity?');
 
     if (confirmed) {
-      this.activities.splice(index, 1);
+      this.activityService.deleteActivity(index);
     }
   }
-
 }

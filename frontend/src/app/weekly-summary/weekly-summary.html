@@ -26,7 +26,7 @@
       <div>
         <span class="section-label">THIS WEEK</span>
         <h2>Your Weekly Overview</h2>
-        <p>Your activity and emissions summary will appear here.</p>
+        <p>Review your recorded activities and weekly progress.</p>
       </div>
       <span class="week-icon">📅</span>
     </section>
@@ -43,8 +43,8 @@
       <article class="summary-card">
         <span class="card-icon">🚶</span>
         <h3>Activities Recorded</h3>
-        <p class="summary-value">Awaiting data</p>
-        <small>Your recorded activities this week</small>
+        <p class="summary-value">{{ weeklyActivityCount }}</p>
+        <small>Activities recorded this week</small>
       </article>
 
       <article class="summary-card">
@@ -56,7 +56,9 @@
 
     </section>
 
+    <!-- Displays activities retrieved from the shared ActivityService. -->
     <section class="content-panel">
+
       <div class="panel-heading">
         <div>
           <span class="section-label">ACTIVITY BREAKDOWN</span>
@@ -65,21 +67,78 @@
         <span class="panel-icon">📋</span>
       </div>
 
-      <div class="empty-state">
-        <span>📝</span>
-        <h3>Weekly activity breakdown coming soon</h3>
-        <p>
-          Your activities will be organised here so you can
-          review your journeys and monitor your weekly progress.
-        </p>
+      @if (weeklyActivities.length > 0) {
 
-        <a routerLink="/activity-tracker" class="primary-button">
-          Record an Activity
-        </a>
-      </div>
+        <div class="activity-list">
+
+          @for (activity of weeklyActivities; track $index) {
+
+            <article class="activity-item">
+
+              <div class="activity-details">
+
+                <h3>{{ activity.type }} Journey</h3>
+
+                <p>
+                  <strong>Purpose:</strong>
+                  {{ activity.purpose }}
+                </p>
+
+                <p>
+                  <strong>Date:</strong>
+                  {{ activity.date }}
+                </p>
+
+                <p>
+                  <strong>Distance:</strong>
+                  {{ activity.distance }} km
+                </p>
+
+                @if (activity.type === 'Car') {
+                  <p>
+                    <strong>Fuel type:</strong>
+                    {{ activity.fuelType }}
+                  </p>
+                }
+
+                @if (activity.description) {
+                  <p>
+                    <strong>Description:</strong>
+                    {{ activity.description }}
+                  </p>
+                }
+
+              </div>
+
+            </article>
+
+          }
+
+        </div>
+
+      } @else {
+
+        <div class="empty-state">
+          <span>📝</span>
+
+          <h3>No activities recorded this week</h3>
+
+          <p>
+            Record an activity to see your journeys and monitor
+            your weekly progress here.
+          </p>
+
+          <a routerLink="/activity-tracker" class="primary-button">
+            Record an Activity
+          </a>
+        </div>
+
+      }
+
     </section>
 
     <section class="content-panel">
+
       <div class="panel-heading">
         <div>
           <span class="section-label">YOUR TRENDS</span>
@@ -90,12 +149,15 @@
 
       <div class="chart-placeholder">
         <span>📊</span>
+
         <h3>Weekly chart coming soon</h3>
+
         <p>
           A visual breakdown of your daily emissions will appear
           here once activity data and emission calculations are connected.
         </p>
       </div>
+
     </section>
 
     <a routerLink="/home" class="back-link">← Back to Home</a>

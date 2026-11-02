@@ -48,6 +48,7 @@
   font-size: 13px;
   font-weight: 600;
   text-decoration: none;
+  transition: color 0.2s ease;
 }
 
 .nav-links a:hover,
@@ -214,6 +215,50 @@
   font-size: 20px;
 }
 
+/* Recorded activity list */
+.activity-list {
+  display: grid;
+  gap: 14px;
+  margin-top: 22px;
+}
+
+.activity-item {
+  padding: 22px;
+  border: 1px solid #e2ece4;
+  border-left: 4px solid #279653;
+  border-radius: 11px;
+  background: #fbfdfb;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.activity-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 17px rgba(27, 75, 43, 0.07);
+}
+
+.activity-details h3 {
+  margin: 0 0 16px;
+  color: #245b36;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.activity-details p {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 9px 0 0;
+  color: #718176;
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.activity-details p strong {
+  color: #435b49;
+  font-weight: 700;
+}
+
 /* Empty activity state */
 .empty-state {
   min-height: 220px;
@@ -257,11 +302,12 @@
   font-size: 13px;
   font-weight: 700;
   text-decoration: none;
-  transition: background 0.2s ease;
+  transition: background 0.2s ease, transform 0.2s ease;
 }
 
 .primary-button:hover {
   background: #125e30;
+  transform: translateY(-1px);
 }
 
 /* Chart placeholder */
@@ -357,6 +403,10 @@
 
   .content-panel {
     padding: 20px;
+  }
+
+  .activity-item {
+    padding: 18px;
   }
 
   .nav-links {
