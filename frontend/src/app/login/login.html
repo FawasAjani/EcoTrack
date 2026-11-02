@@ -6,13 +6,14 @@
   <div class="card shadow-lg" style="max-width: 400px; width: 100%;">
     <div class="card-body p-4">
       <h1 class="text-center text-success mb-2">EcoTrack</h1>
+
       <p class="text-center text-muted mb-4">
         Track your impact. Make a difference.
       </p>
 
       <h2 class="text-center mb-4">Login</h2>
 
-      <form (ngSubmit)="onSubmit()">
+      <form novalidate>
         <div class="mb-3">
           <label for="email" class="form-label">Email</label>
           <input
@@ -21,11 +22,10 @@
             class="form-control"
             [formControl]="email"
             placeholder="Enter your email"
-            required
           />
         </div>
 
-        <div class="mb-4">
+        <div class="mb-2">
           <label for="password" class="form-label">Password</label>
           <input
             type="password"
@@ -33,21 +33,47 @@
             class="form-control"
             [formControl]="password"
             placeholder="Enter your password"
-            required
           />
         </div>
 
-        <button type="submit" class="btn btn-success w-100">
-          Login
+        <div class="text-end mb-3">
+          <button
+            type="button"
+            class="btn btn-link text-success p-0"
+            (click)="onForgotPassword()"
+            [disabled]="isLoading"
+          >
+            Forgot Password?
+          </button>
+        </div>
+
+        <button
+          type="button"
+          class="btn btn-success w-100"
+          (click)="onSubmit()"
+          [disabled]="isLoading"
+        >
+          {{ isLoading ? 'Please wait...' : 'Login' }}
         </button>
 
         <button
           type="button"
           class="btn btn-outline-success w-100 mt-2"
           (click)="onSignup()"
+          [disabled]="isLoading"
         >
           Sign Up
         </button>
+
+        <div
+          *ngIf="message"
+          class="alert mt-3 mb-0"
+          [class.alert-success]="messageType === 'success'"
+          [class.alert-danger]="messageType === 'error'"
+          role="alert"
+        >
+          {{ message }}
+        </div>
       </form>
     </div>
   </div>

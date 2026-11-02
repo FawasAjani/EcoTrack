@@ -1,72 +1,65 @@
+
 <div class="container">
   <div class="card">
     <div class="card-body">
-
       <h1>EcoTrack</h1>
       <p>Track your impact. Make a difference.</p>
+
       <h2>Create an Account</h2>
 
       <form novalidate>
-
-        <div class="mb-3">
-          <label for="fullName" class="form-label">Full Name</label>
+        <div class="form-group">
+          <label for="fullName">Full Name</label>
           <input
-            type="text"
             id="fullName"
+            type="text"
             class="form-control"
-            [formControl]="fullName"
             placeholder="Enter your full name"
-          />
+            [formControl]="fullName">
         </div>
 
-        <div class="mb-3">
-          <label for="email" class="form-label">Email</label>
+        <div class="form-group">
+          <label for="email">Email Address</label>
           <input
-            type="email"
             id="email"
+            type="email"
             class="form-control"
-            [formControl]="email"
             placeholder="Enter your email"
-          />
+            [formControl]="email">
         </div>
 
-        <div class="mb-3">
-          <label for="password" class="form-label">Password</label>
+        <div class="form-group">
+          <label for="password">Password</label>
           <input
-            type="password"
             id="password"
+            type="password"
             class="form-control"
-            [formControl]="password"
             placeholder="Create a password"
-          />
+            [formControl]="password">
         </div>
 
-        <div class="mb-4">
-          <label for="confirmPassword" class="form-label">
-            Confirm Password
-          </label>
+        <div class="form-group">
+          <label for="confirmPassword">Confirm Password</label>
           <input
-            type="password"
             id="confirmPassword"
+            type="password"
             class="form-control"
-            [formControl]="confirmPassword"
             placeholder="Confirm your password"
-          />
+            [formControl]="confirmPassword">
         </div>
 
         <button
           type="button"
           class="btn btn-success"
           (click)="onSubmit()"
-        >
-          Sign Up
+          [disabled]="isLoading">
+          {{ isLoading ? 'Creating Account...' : 'Sign Up' }}
         </button>
 
         <button
           type="button"
           class="btn btn-outline-success mt-2"
-          (click)="onLogin()"
-        >
+          (click)="onLogin()">
           Back to Login
         </button>
 
@@ -74,11 +67,9 @@
           *ngIf="message"
           class="form-message"
           [class.success]="messageType === 'success'"
-          [class.error]="messageType === 'error'"
-        >
+          [class.error]="messageType === 'error'">
           {{ message }}
         </div>
-
       </form>
     </div>
   </div>
