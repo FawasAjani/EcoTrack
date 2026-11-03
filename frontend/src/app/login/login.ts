@@ -64,6 +64,9 @@ export class Login {
       if (data.user) {
         this.message = 'Login successful! Welcome to EcoTrack.';
         this.messageType = 'success';
+
+        // Navigate to the dashboard after successful authentication.
+        await this.router.navigate(['/home']);
       } else {
         this.message = 'Login could not be completed. Please try again.';
         this.messageType = 'error';
@@ -110,6 +113,7 @@ export class Login {
     } catch (error) {
       console.error('Password recovery error:', error);
       this.message = 'Unable to send the recovery email. Please try again.';
+
       this.messageType = 'error';
 
     } finally {
