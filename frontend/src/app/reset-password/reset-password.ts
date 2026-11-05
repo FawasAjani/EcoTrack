@@ -63,13 +63,22 @@ export class ResetPassword {
       if (error) {
         this.message = error.message;
         this.messageType = 'error';
+        console.error('Password update failed:', error);
         return;
       }
 
       this.message = 'Your password has been updated successfully.';
       this.messageType = 'success';
 
-      await this.router.navigate(['/login']);
+      console.log('Password update succeeded. Attempting navigation to Login.');
+
+      const navigated = await this.router.navigate(['/login']);
+
+      console.log('Login navigation result:', navigated);
+
+      if (!navigated) {
+        this.message = 'Password updated successfully, but automatic navigation failed. Please use Back to Login.';
+      }
 
     } catch (error) {
       console.error('Password update error:', error);
