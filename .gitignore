@@ -1,8 +1,14 @@
-# Dependencies and generated files
+# Angular dependencies and generated files
 node_modules/
 dist/
 .angular/
 coverage/
+
+# Python virtual environments and generated files
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
 
 # Environment files and secrets
 .env
@@ -12,3 +18,4 @@ coverage/
 # Operating system files
 .DS_Store
 Thumbs.db
+desktop.ini
