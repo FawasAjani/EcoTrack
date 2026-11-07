@@ -23,6 +23,7 @@ export class SupabaseService {
     );
   }
 
+  // Register a new user.
   async signUp(fullName: string, email: string, password: string) {
     const { data, error } = await this.supabase.auth.signUp({
       email,
@@ -35,6 +36,7 @@ export class SupabaseService {
     return { data, error };
   }
 
+  // Sign in using email and password.
   async signIn(email: string, password: string) {
     const { data, error } =
       await this.supabase.auth.signInWithPassword({
@@ -45,11 +47,25 @@ export class SupabaseService {
     return { data, error };
   }
 
+  // Retrieve the current authenticated user's access token.
+  async getAccessToken(): Promise<string | null> {
+    const { data, error } = await this.supabase.auth.getSession();
+
+    if (error) {
+      console.error('Unable to retrieve Supabase session:', error);
+      return null;
+    }
+
+    return data.session?.access_token ?? null;
+  }
+
+  // Sign out the current user.
   async signOut() {
     const { error } = await this.supabase.auth.signOut();
     return { error };
   }
 
+  // Send a password recovery email.
   async sendPasswordResetEmail(email: string) {
     const { data, error } =
       await this.supabase.auth.resetPasswordForEmail(email, {
@@ -59,6 +75,7 @@ export class SupabaseService {
     return { data, error };
   }
 
+  // Update the current user's password.
   async updatePassword(newPassword: string) {
     const { data, error } =
       await this.supabase.auth.updateUser({

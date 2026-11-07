@@ -1,26 +1,40 @@
-
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-
+import { describe, it, expect, beforeEach } from 'vitest';
 import { ActivityTracker } from './activity-tracker';
+import { ActivityService } from '../services/activity';
 
 describe('ActivityTracker', () => {
   let component: ActivityTracker;
   let fixture: ComponentFixture<ActivityTracker>;
 
-  // Configure the router and create the Activity Tracker component before each test.
+  // Provide predictable activity data without calling the real backend.
+  const mockActivityService = {
+    getActivities: async () => [],
+    addActivity: async (activity: any) => activity,
+    updateActivity: async (id: string, activity: any) => activity,
+    deleteActivity: async () => undefined
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ActivityTracker],
-      providers: [provideRouter([])],
+      providers: [
+        provideRouter([]),
+        {
+          provide: ActivityService,
+          useValue: mockActivityService
+        }
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(ActivityTracker);
     component = fixture.componentInstance;
+
+    fixture.detectChanges();
     await fixture.whenStable();
   });
 
-  // Verify that the Activity Tracker component is created successfully.
   it('should create', () => {
     expect(component).toBeTruthy();
   });
