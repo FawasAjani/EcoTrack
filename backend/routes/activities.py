@@ -1,120 +1,347 @@
 
+from datetime import date
+from math import isfinite
+from uuid import UUID
+
 from flask import Blueprint, jsonify, request
 
-activities_bp = Blueprint("activities", __name__)
-
-# Temporary storage until Supabase database integration.
-activities = []
-next_activity_id = 1
+from supabase_client import get_supabase_client
 
 
-@activities_bp.route("/api/activities", methods=["GET"])
-def get_activities():
-    """Return all recorded activities."""
-    return jsonify({
-        "status": "success",
-        "activities": activities
-    }), 200
+activities_bp = Blueprint(
+    "activities",
+    __name__,
+    url_prefix="/api/activities"
+)
 
 
-@activities_bp.route("/api/activities", methods=["POST"])
-def create_activity():
-    """Record a new activity."""
-    global next_activity_id
+def get_authenticated_client():
+    """
+    Validate the user's Supabase access token and create
+    a Supabase client using that token.
+    """
 
-    data = request.get_json(silent=True)
+    authorization = request.headers.get("Authorization", "")
+
+    if not authorization.startswith("Bearer "):
+        return None, None, (
+            jsonify({
+                "status": "error",
+                "message": "A valid Bearer token is required."
+            }),
+            401
+        )
+
+    token = authorization.split(" ", 1)[1].strip()
+
+    if not token:
+        return None, None, (
+            jsonify({
+                "status": "error",
+                "message": "A valid Bearer token is required."
+            }),
+            401
+        )
+
+    try:
+        client = get_supabase_client(token)
+
+        # Ask Supabase to validate the token and identify its user.
+        auth_response = client.auth.get_user(token)
+        user = auth_response.user if auth_response else None
+
+        if not user:
+            return None, None, (
+                jsonify({
+                    "status": "error",
+                    "message": "Invalid or expired access token."
+                }),
+                401
+            )
+
+        return client, user.id, None
+
+    except Exception as error:
+        # Temporary diagnostic: this prints the actual error
+        # in the Flask terminal without exposing the access token.
+        print(
+            f"Supabase authentication diagnostic: "
+            f"{type(error).__name__}: {error}"
+        )
+
+        return None, None, (
+            jsonify({
+                "status": "error",
+                "message": "Authentication failed."
+            }),
+            401
+        )
+
+
+def validate_activity_data(data, require_all=True):
+    """Validate activity fields received from the frontend."""
+
+    required_fields = [
+        "category",
+        "description",
+        "quantity",
+        "unit",
+        "activity_date"
+    ]
 
     if not isinstance(data, dict):
-        return jsonify({
-            "status": "error",
-            "message": "A valid JSON object is required."
-        }), 400
+        return None, "Request body must be a JSON object."
 
-    required_fields = ["category", "description"]
+    if require_all:
+        for field in required_fields:
+            if field not in data:
+                return None, f"Missing required field: {field}"
+
+    validated = {}
 
     for field in required_fields:
-        if not isinstance(data.get(field), str) or not data[field].strip():
-            return jsonify({
-                "status": "error",
-                "message": f"{field.capitalize()} is required."
-            }), 400
+        if field not in data:
+            continue
 
-    activity = {
-        "id": next_activity_id,
-        "category": data["category"].strip(),
-        "description": data["description"].strip()
-    }
+        value = data[field]
 
-    activities.append(activity)
-    next_activity_id += 1
+        if field in ["category", "description", "unit"]:
+            if not isinstance(value, str) or not value.strip():
+                return None, f"{field} must be a non-empty string."
 
-    return jsonify({
-        "status": "success",
-        "message": "Activity recorded successfully.",
-        "activity": activity
-    }), 201
+            validated[field] = value.strip()
+
+        elif field == "quantity":
+            try:
+                quantity = float(value)
+            except (TypeError, ValueError):
+                return None, "quantity must be a valid number."
+
+            if not isfinite(quantity) or quantity <= 0:
+                return None, "quantity must be greater than zero."
+
+            validated[field] = quantity
+
+        elif field == "activity_date":
+            try:
+                date.fromisoformat(value)
+            except (TypeError, ValueError):
+                return None, "activity_date must use YYYY-MM-DD format."
+
+            validated[field] = value
+
+    for optional_field in ["fuel_type", "purpose"]:
+        if optional_field in data:
+            value = data[optional_field]
+
+            if value is not None and not isinstance(value, str):
+                return None, f"{optional_field} must be a string."
+
+            validated[optional_field] = (
+                value.strip() if isinstance(value, str) else None
+            )
+
+    return validated, None
 
 
-@activities_bp.route("/api/activities/<int:activity_id>", methods=["PUT"])
-def update_activity(activity_id):
-    """Update an existing activity."""
-    data = request.get_json(silent=True)
+def is_valid_uuid(value):
+    """Check whether an activity identifier is a valid UUID."""
 
-    if not isinstance(data, dict):
+    try:
+        UUID(value)
+        return True
+    except (ValueError, TypeError, AttributeError):
+        return False
+
+
+@activities_bp.route("", methods=["GET"])
+def get_activities():
+    """Retrieve activities belonging to the authenticated user."""
+
+    client, user_id, error_response = get_authenticated_client()
+
+    if error_response:
+        return error_response
+
+    try:
+        response = (
+            client.table("activities")
+            .select("*")
+            .eq("user_id", user_id)
+            .order("activity_date", desc=True)
+            .execute()
+        )
+
+        return jsonify({
+            "status": "success",
+            "activities": response.data
+        }), 200
+
+    except Exception as error:
+        print(
+            f"Get activities diagnostic: "
+            f"{type(error).__name__}: {error}"
+        )
+
         return jsonify({
             "status": "error",
-            "message": "A valid JSON object is required."
+            "message": "Unable to retrieve activities."
+        }), 500
+
+
+@activities_bp.route("", methods=["POST"])
+def create_activity():
+    """Create an activity for the authenticated user."""
+
+    client, user_id, error_response = get_authenticated_client()
+
+    if error_response:
+        return error_response
+
+    data, validation_error = validate_activity_data(
+        request.get_json(silent=True)
+    )
+
+    if validation_error:
+        return jsonify({
+            "status": "error",
+            "message": validation_error
         }), 400
 
-    activity = next(
-        (item for item in activities if item["id"] == activity_id),
-        None
-    )
+    try:
+        data["user_id"] = user_id
 
-    if activity is None:
+        response = (
+            client.table("activities")
+            .insert(data)
+            .execute()
+        )
+
+        return jsonify({
+            "status": "success",
+            "message": "Activity created successfully.",
+            "activity": response.data[0] if response.data else None
+        }), 201
+
+    except Exception as error:
+        print(
+            f"Create activity diagnostic: "
+            f"{type(error).__name__}: {error}"
+        )
+
         return jsonify({
             "status": "error",
-            "message": "Activity not found."
-        }), 404
-
-    for field in ["category", "description"]:
-        if field in data:
-            if not isinstance(data[field], str) or not data[field].strip():
-                return jsonify({
-                    "status": "error",
-                    "message": f"{field.capitalize()} must not be empty."
-                }), 400
-
-    if "category" in data:
-        activity["category"] = data["category"].strip()
-
-    if "description" in data:
-        activity["description"] = data["description"].strip()
-
-    return jsonify({
-        "status": "success",
-        "message": "Activity updated successfully.",
-        "activity": activity
-    }), 200
+            "message": "Unable to create activity."
+        }), 500
 
 
-@activities_bp.route("/api/activities/<int:activity_id>", methods=["DELETE"])
+@activities_bp.route("/<activity_id>", methods=["PUT"])
+def update_activity(activity_id):
+    """Update an activity owned by the authenticated user."""
+
+    client, user_id, error_response = get_authenticated_client()
+
+    if error_response:
+        return error_response
+
+    if not is_valid_uuid(activity_id):
+        return jsonify({
+            "status": "error",
+            "message": "Invalid activity ID."
+        }), 400
+
+    data, validation_error = validate_activity_data(
+        request.get_json(silent=True),
+        require_all=False
+    )
+
+    if validation_error:
+        return jsonify({
+            "status": "error",
+            "message": validation_error
+        }), 400
+
+    if not data:
+        return jsonify({
+            "status": "error",
+            "message": "No activity fields were provided for updating."
+        }), 400
+
+    try:
+        response = (
+            client.table("activities")
+            .update(data)
+            .eq("id", activity_id)
+            .eq("user_id", user_id)
+            .execute()
+        )
+
+        if not response.data:
+            return jsonify({
+                "status": "error",
+                "message": "Activity not found."
+            }), 404
+
+        return jsonify({
+            "status": "success",
+            "message": "Activity updated successfully.",
+            "activity": response.data[0]
+        }), 200
+
+    except Exception as error:
+        print(
+            f"Update activity diagnostic: "
+            f"{type(error).__name__}: {error}"
+        )
+
+        return jsonify({
+            "status": "error",
+            "message": "Unable to update activity."
+        }), 500
+
+
+@activities_bp.route("/<activity_id>", methods=["DELETE"])
 def delete_activity(activity_id):
-    """Delete an existing activity."""
-    activity = next(
-        (item for item in activities if item["id"] == activity_id),
-        None
-    )
+    """Delete an activity owned by the authenticated user."""
 
-    if activity is None:
+    client, user_id, error_response = get_authenticated_client()
+
+    if error_response:
+        return error_response
+
+    if not is_valid_uuid(activity_id):
         return jsonify({
             "status": "error",
-            "message": "Activity not found."
-        }), 404
+            "message": "Invalid activity ID."
+        }), 400
 
-    activities.remove(activity)
+    try:
+        response = (
+            client.table("activities")
+            .delete()
+            .eq("id", activity_id)
+            .eq("user_id", user_id)
+            .execute()
+        )
 
-    return jsonify({
-        "status": "success",
-        "message": "Activity deleted successfully."
-    }), 200
+        if not response.data:
+            return jsonify({
+                "status": "error",
+                "message": "Activity not found."
+            }), 404
+
+        return jsonify({
+            "status": "success",
+            "message": "Activity deleted successfully."
+        }), 200
+
+    except Exception as error:
+        print(
+            f"Delete activity diagnostic: "
+            f"{type(error).__name__}: {error}"
+        )
+
+        return jsonify({
+            "status": "error",
+            "message": "Unable to delete activity."
+        }), 500
