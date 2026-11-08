@@ -7,6 +7,12 @@ from flask import Blueprint, jsonify, request
 
 from supabase_client import get_supabase_client
 
+from emissions.calculator import (
+    calculate_car_emissions,
+    calculate_passenger_transport_emissions,
+    calculate_zero_operational_emissions,
+)
+
 
 activities_bp = Blueprint(
     "activities",
@@ -16,10 +22,7 @@ activities_bp = Blueprint(
 
 
 def get_authenticated_client():
-    """
-    Validate the user's Supabase access token and create
-    a Supabase client using that token.
-    """
+    """Validate the Supabase access token and identify the user."""
 
     authorization = request.headers.get("Authorization", "")
 
@@ -45,8 +48,6 @@ def get_authenticated_client():
 
     try:
         client = get_supabase_client(token)
-
-        # Ask Supabase to validate the token and identify its user.
         auth_response = client.auth.get_user(token)
         user = auth_response.user if auth_response else None
 
@@ -62,8 +63,6 @@ def get_authenticated_client():
         return client, user.id, None
 
     except Exception as error:
-        # Temporary diagnostic: this prints the actual error
-        # in the Flask terminal without exposing the access token.
         print(
             f"Supabase authentication diagnostic: "
             f"{type(error).__name__}: {error}"
@@ -124,6 +123,9 @@ def validate_activity_data(data, require_all=True):
 
         elif field == "activity_date":
             try:
+                if not isinstance(value, str):
+                    raise ValueError
+
                 date.fromisoformat(value)
             except (TypeError, ValueError):
                 return None, "activity_date must use YYYY-MM-DD format."
@@ -142,6 +144,77 @@ def validate_activity_data(data, require_all=True):
             )
 
     return validated, None
+
+
+def calculate_activity_emissions(activity):
+    """
+    Calculate emissions using backend-controlled factors.
+
+    Car emissions are stored as direct CO2.
+    Walking and cycling use the initial operational CO2e boundary.
+    Bus and train remain uncalculated until verified factors exist.
+    """
+
+    category = activity.get("category")
+    distance = activity.get("quantity")
+    unit = activity.get("unit")
+
+    if unit != "km":
+        raise ValueError(
+            "Transport distance must be recorded in kilometres (km)."
+        )
+
+    if category == "Car":
+        fuel_type = activity.get("fuel_type")
+
+        result = calculate_car_emissions(distance, fuel_type)
+
+        return {
+            "emissions_kg_co2": result["emissions"],
+            "emissions_kg_co2e": None,
+            "emission_factor": result["emission_factor"],
+            "emission_factor_unit": result["emission_factor_unit"],
+            "emission_factor_source": (
+                f'{result["emission_factor_source"]}; '
+                f'assumed fuel consumption: '
+                f'{result["fuel_consumption_l_per_100km"]} L/100km'
+            ),
+            "emission_factor_year": result["emission_factor_year"],
+        }
+
+    if category in ["Walking", "Cycling"]:
+        result = calculate_zero_operational_emissions(
+            distance,
+            category
+        )
+
+        return {
+            "emissions_kg_co2": None,
+            "emissions_kg_co2e": result["emissions"],
+            "emission_factor": result["emission_factor"],
+            "emission_factor_unit": result["emission_factor_unit"],
+            "emission_factor_source": result["emission_factor_source"],
+            "emission_factor_year": result["emission_factor_year"],
+        }
+
+    if category in ["Bus", "Train"]:
+        try:
+            calculate_passenger_transport_emissions(
+                distance,
+                category
+            )
+        except NotImplementedError:
+            # Do not invent a factor. Save the activity with NULL emissions.
+            return {
+                "emissions_kg_co2": None,
+                "emissions_kg_co2e": None,
+                "emission_factor": None,
+                "emission_factor_unit": None,
+                "emission_factor_source": None,
+                "emission_factor_year": None,
+            }
+
+    raise ValueError("Unsupported transport category.")
 
 
 def is_valid_uuid(value):
@@ -191,7 +264,7 @@ def get_activities():
 
 @activities_bp.route("", methods=["POST"])
 def create_activity():
-    """Create an activity for the authenticated user."""
+    """Create an activity and calculate its emissions."""
 
     client, user_id, error_response = get_authenticated_client()
 
@@ -209,6 +282,10 @@ def create_activity():
         }), 400
 
     try:
+        emissions = calculate_activity_emissions(data)
+
+        # Only backend-calculated emissions are stored.
+        data.update(emissions)
         data["user_id"] = user_id
 
         response = (
@@ -222,6 +299,12 @@ def create_activity():
             "message": "Activity created successfully.",
             "activity": response.data[0] if response.data else None
         }), 201
+
+    except ValueError as error:
+        return jsonify({
+            "status": "error",
+            "message": str(error)
+        }), 400
 
     except Exception as error:
         print(
@@ -237,7 +320,7 @@ def create_activity():
 
 @activities_bp.route("/<activity_id>", methods=["PUT"])
 def update_activity(activity_id):
-    """Update an activity owned by the authenticated user."""
+    """Update an activity and recalculate its emissions."""
 
     client, user_id, error_response = get_authenticated_client()
 
@@ -268,6 +351,29 @@ def update_activity(activity_id):
         }), 400
 
     try:
+        # Retrieve the existing record to preserve unchanged fields.
+        existing_response = (
+            client.table("activities")
+            .select("*")
+            .eq("id", activity_id)
+            .eq("user_id", user_id)
+            .execute()
+        )
+
+        if not existing_response.data:
+            return jsonify({
+                "status": "error",
+                "message": "Activity not found."
+            }), 404
+
+        updated_activity = dict(existing_response.data[0])
+        updated_activity.update(data)
+
+        emissions = calculate_activity_emissions(updated_activity)
+
+        # Recalculate and replace the stored emissions metadata.
+        data.update(emissions)
+
         response = (
             client.table("activities")
             .update(data)
@@ -287,6 +393,12 @@ def update_activity(activity_id):
             "message": "Activity updated successfully.",
             "activity": response.data[0]
         }), 200
+
+    except ValueError as error:
+        return jsonify({
+            "status": "error",
+            "message": str(error)
+        }), 400
 
     except Exception as error:
         print(
