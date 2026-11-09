@@ -80,9 +80,9 @@ def get_authenticated_client():
 def validate_activity_data(data, require_all=True):
     """Validate activity fields received from the frontend."""
 
+    # Description is deliberately excluded because it is optional.
     required_fields = [
         "category",
-        "description",
         "quantity",
         "unit",
         "activity_date"
@@ -98,13 +98,14 @@ def validate_activity_data(data, require_all=True):
 
     validated = {}
 
+    # Validate required and supplied fields.
     for field in required_fields:
         if field not in data:
             continue
 
         value = data[field]
 
-        if field in ["category", "description", "unit"]:
+        if field in ["category", "unit"]:
             if not isinstance(value, str) or not value.strip():
                 return None, f"{field} must be a non-empty string."
 
@@ -132,6 +133,18 @@ def validate_activity_data(data, require_all=True):
 
             validated[field] = value
 
+    # Description is optional. If omitted or blank, save an empty string.
+    if "description" in data:
+        description = data["description"]
+
+        if not isinstance(description, str):
+            return None, "description must be a string."
+
+        validated["description"] = description.strip()
+    elif require_all:
+        validated["description"] = ""
+
+    # Validate optional transport information.
     for optional_field in ["fuel_type", "purpose"]:
         if optional_field in data:
             value = data[optional_field]

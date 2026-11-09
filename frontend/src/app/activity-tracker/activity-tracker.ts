@@ -1,4 +1,4 @@
-
+import { DecimalPipe } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -7,7 +7,7 @@ import { Activity, ActivityService } from '../services/activity';
 @Component({
   selector: 'app-activity-tracker',
   standalone: true,
-  imports: [RouterLink, FormsModule],
+  imports: [RouterLink, FormsModule, DecimalPipe],
   templateUrl: './activity-tracker.html',
   styleUrl: './activity-tracker.css'
 })
@@ -32,6 +32,7 @@ export class ActivityTracker implements OnInit {
     await this.loadActivities();
   }
 
+  // Retrieve activities belonging to the logged-in user.
   async loadActivities(): Promise<void> {
     this.isLoading = true;
     this.errorMessage = '';
@@ -48,6 +49,7 @@ export class ActivityTracker implements OnInit {
     }
   }
 
+  // Validate and save a new activity.
   async addActivity(): Promise<void> {
     if (
       !this.activityType ||
@@ -69,15 +71,25 @@ export class ActivityTracker implements OnInit {
       purpose: this.purpose,
       description: this.description.trim(),
       date: this.activityDate,
-      distance: this.distance
+      distance: this.distance,
+
+      // The Flask API calculates these values after submission.
+      emissionsKgCo2: null,
+      emissionsKgCo2e: null,
+      emissionFactor: null,
+      emissionFactorUnit: null,
+      emissionFactorSource: null,
+      emissionFactorYear: null
     };
 
     try {
       this.errorMessage = '';
+
       await this.activityService.addActivity(newActivity);
 
       await this.loadActivities();
 
+      // Reset the form after a successful save.
       this.activityType = '';
       this.fuelType = '';
       this.purpose = '';
@@ -86,13 +98,22 @@ export class ActivityTracker implements OnInit {
       this.distance = null;
 
       this.changeDetector.markForCheck();
-    } catch (error) {
+
+    } catch (error: any) {
       console.error('Unable to save activity:', error);
-      this.errorMessage = 'Unable to save activity. Please try again.';
+
+      // Display the actual error returned by the Flask API.
+      const backendMessage = error?.error?.message;
+
+      this.errorMessage = backendMessage
+        ? `Unable to save activity: ${backendMessage}`
+        : 'Unable to save activity. Please check the backend terminal for details.';
+
       this.changeDetector.markForCheck();
     }
   }
 
+  // Delete an activity after user confirmation.
   async deleteActivity(index: number): Promise<void> {
     const activity = this.activities[index];
 

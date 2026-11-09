@@ -12,13 +12,37 @@ export interface Activity {
   description: string;
   date: string;
   distance: number;
+
+  // Calculated emissions returned by the Flask API.
+  emissionsKgCo2: number | null;
+  emissionsKgCo2e: number | null;
+  emissionFactor: number | null;
+  emissionFactorUnit: string | null;
+  emissionFactorSource: string | null;
+  emissionFactorYear: number | null;
+}
+
+interface ActivityApiRecord {
+  id: string;
+  category: string;
+  fuel_type?: string;
+  purpose?: string;
+  description: string;
+  activity_date: string;
+  quantity: number | string;
+  emissions_kg_co2?: number | null;
+  emissions_kg_co2e?: number | null;
+  emission_factor?: number | null;
+  emission_factor_unit?: string | null;
+  emission_factor_source?: string | null;
+  emission_factor_year?: number | null;
 }
 
 interface ActivityApiResponse {
   status: string;
   message?: string;
-  activities?: Activity[];
-  activity?: Activity;
+  activities?: ActivityApiRecord[];
+  activity?: ActivityApiRecord;
 }
 
 @Injectable({
@@ -49,7 +73,7 @@ export class ActivityService {
   }
 
   // Convert the database activity structure into the frontend structure.
-  private mapActivity(activity: any): Activity {
+  private mapActivity(activity: ActivityApiRecord): Activity {
     return {
       id: activity.id,
       type: activity.category,
@@ -57,7 +81,14 @@ export class ActivityService {
       purpose: activity.purpose || '',
       description: activity.description,
       date: activity.activity_date,
-      distance: Number(activity.quantity)
+      distance: Number(activity.quantity),
+
+      emissionsKgCo2: activity.emissions_kg_co2 ?? null,
+      emissionsKgCo2e: activity.emissions_kg_co2e ?? null,
+      emissionFactor: activity.emission_factor ?? null,
+      emissionFactorUnit: activity.emission_factor_unit ?? null,
+      emissionFactorSource: activity.emission_factor_source ?? null,
+      emissionFactorYear: activity.emission_factor_year ?? null
     };
   }
 

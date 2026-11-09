@@ -17,7 +17,6 @@
     <h2>Add a New Activity</h2>
 
     <form #activityForm="ngForm" (ngSubmit)="addActivity()">
-
       <div class="form-group">
         <label for="activityType">Transport Type</label>
         <select
@@ -112,12 +111,21 @@
   <section class="recorded-activities">
     <h2>Recorded Activities</h2>
 
-    @if (activities.length === 0) {
+    @if (isLoading) {
+      <p>Loading activities...</p>
+    }
+
+    @if (errorMessage) {
+      <p class="error-message">{{ errorMessage }}</p>
+    }
+
+    @if (!isLoading && activities.length === 0) {
       <p>No activities recorded yet. Add your first activity above.</p>
     } @else {
-      @for (activity of activities; track $index) {
+      @for (activity of activities; track activity.id ?? $index) {
         <div class="activity-card">
           <h3>{{ activity.type }}</h3>
+
           <p><strong>Fuel Type:</strong> {{ activity.fuelType }}</p>
           <p><strong>Journey Purpose:</strong> {{ activity.purpose }}</p>
 
@@ -127,6 +135,39 @@
 
           <p><strong>Date:</strong> {{ activity.date }}</p>
           <p><strong>Distance:</strong> {{ activity.distance }} km</p>
+
+          <div class="emissions-information">
+            <h4>Emissions Estimate</h4>
+
+            @if (activity.emissionsKgCo2 !== null) {
+              <p>
+                <strong>{{ activity.emissionsKgCo2 | number:'1.2-2' }} kg CO₂</strong>
+                <span>(direct emissions)</span>
+              </p>
+            } @else if (activity.emissionsKgCo2e !== null) {
+              <p>
+                <strong>{{ activity.emissionsKgCo2e | number:'1.2-2' }} kg CO₂e</strong>
+                <span>(operational emissions)</span>
+              </p>
+            } @else {
+              <p>Emission estimate unavailable for this transport type.</p>
+            }
+
+            @if (activity.emissionFactor !== null) {
+              <p>
+                <strong>Emission factor:</strong>
+                {{ activity.emissionFactor }}
+                {{ activity.emissionFactorUnit }}
+              </p>
+            }
+
+            @if (activity.emissionFactorSource) {
+              <p>
+                <strong>Source:</strong>
+                {{ activity.emissionFactorSource }}
+              </p>
+            }
+          </div>
 
           <button
             type="button"
