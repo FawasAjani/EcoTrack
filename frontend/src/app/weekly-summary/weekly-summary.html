@@ -31,82 +31,364 @@
       <span class="week-icon">📅</span>
     </section>
 
-    <section class="summary-grid">
-
-      <article class="summary-card">
-        <span class="card-icon">🌍</span>
-        <h3>Total Emissions</h3>
-        <p class="summary-value">Awaiting calculation</p>
-        <small>Estimated carbon emissions this week</small>
-      </article>
-
-      <article class="summary-card">
-        <span class="card-icon">🚶</span>
-        <h3>Activities Recorded</h3>
-        <p class="summary-value">{{ weeklyActivityCount }}</p>
-        <small>Activities recorded this week</small>
-      </article>
-
-      <article class="summary-card">
-        <span class="card-icon">📊</span>
-        <h3>Daily Average</h3>
-        <p class="summary-value">Awaiting calculation</p>
-        <small>Average daily carbon emissions</small>
-      </article>
-
-    </section>
-
-    <!-- Displays activities retrieved from the shared ActivityService. -->
-    <section class="content-panel">
-
-      <div class="panel-heading">
-        <div>
-          <span class="section-label">ACTIVITY BREAKDOWN</span>
-          <h2>Your Recorded Activities</h2>
-        </div>
-        <span class="panel-icon">📋</span>
+    @if (isLoading) {
+      <div class="empty-state">
+        <p>Loading your weekly activities...</p>
       </div>
+    }
 
-      @if (weeklyActivities.length > 0) {
+    @if (errorMessage) {
+      <div class="empty-state">
+        <p>{{ errorMessage }}</p>
+        <button
+          type="button"
+          class="primary-button"
+          (click)="loadActivities()"
+        >
+          Try Again
+        </button>
+      </div>
+    }
 
-        <div class="activity-list">
+    @if (!isLoading && !errorMessage) {
 
-          @for (activity of weeklyActivities; track $index) {
+      <!-- Weekly summary cards -->
+      <section class="summary-grid">
 
-            <article class="activity-item">
+        <article class="summary-card">
+          <span class="card-icon">🌍</span>
+          <h3>Total CO₂ Emissions</h3>
 
-              <div class="activity-details">
+          <p class="summary-value">
+            @if (totalWeeklyCo2 !== null) {
+              {{ totalWeeklyCo2 | number:'1.2-2' }} kg
+            } @else {
+              Not available
+            }
+          </p>
 
-                <h3>{{ activity.type }} Journey</h3>
+          <small>Direct CO₂ emissions this week</small>
+        </article>
+
+        <article class="summary-card">
+          <span class="card-icon">🚶</span>
+          <h3>Activities Recorded</h3>
+
+          <p class="summary-value">{{ weeklyActivityCount }}</p>
+
+          <small>Activities recorded this week</small>
+          <small>
+            {{ activitiesWithUnavailableEmissions }}
+            activities without an emissions estimate
+          </small>
+        </article>
+
+        <article class="summary-card">
+          <span class="card-icon">🌱</span>
+          <h3>Total CO₂e Emissions</h3>
+
+          <p class="summary-value">
+            @if (totalWeeklyCo2e !== null) {
+              {{ totalWeeklyCo2e | number:'1.2-2' }} kg
+            } @else {
+              Not available
+            }
+          </p>
+
+          <small>CO₂-equivalent emissions this week</small>
+        </article>
+
+      </section>
+
+      <!-- Daily averages -->
+      <section class="summary-grid">
+
+        <article class="summary-card">
+          <span class="card-icon">📊</span>
+          <h3>Daily Average CO₂</h3>
+
+          <p class="summary-value">
+            @if (averageDailyCo2 !== null) {
+              {{ averageDailyCo2 | number:'1.2-2' }} kg
+            } @else {
+              Not available
+            }
+          </p>
+
+          <small>Average per calendar day</small>
+        </article>
+
+        <article class="summary-card">
+          <span class="card-icon">🌿</span>
+          <h3>Daily Average CO₂e</h3>
+
+          <p class="summary-value">
+            @if (averageDailyCo2e !== null) {
+              {{ averageDailyCo2e | number:'1.2-2' }} kg
+            } @else {
+              Not available
+            }
+          </p>
+
+          <small>Average per calendar day</small>
+        </article>
+
+      </section>
+
+      <!-- Weekly emissions charts -->
+      <section class="content-panel chart-panel">
+
+        <div class="panel-heading">
+          <div>
+            <span class="section-label">DATA VISUALISATION</span>
+            <h2>Weekly Emissions Charts</h2>
+          </div>
+
+          <span class="panel-icon">📈</span>
+        </div>
+
+        <!-- Chart type and emissions measure selectors -->
+        <div class="chart-controls">
+
+          <label for="chartType">Choose your chart type</label>
+
+          <select
+            id="chartType"
+            [value]="selectedChart"
+            (change)="onChartChange($any($event.target).value)"
+          >
+            @for (option of chartOptions; track option.value) {
+              <option [value]="option.value">
+                {{ option.label }}
+              </option>
+            }
+          </select>
+
+          @if (
+            selectedChart === 'pie' ||
+            selectedChart === 'doughnut'
+          ) {
+            <label for="emissionMetric">
+              Choose emissions measure
+            </label>
+
+            <select
+              id="emissionMetric"
+              [value]="selectedEmissionMetric"
+              (change)="onEmissionMetricChange($any($event.target).value)"
+            >
+              <option value="co2">CO₂</option>
+              <option value="co2e">CO₂e</option>
+            </select>
+          }
+
+        </div>
+
+        <p class="chart-description">
+          Explore your weekly emissions using different visualisations.
+        </p>
+
+        <!-- Chart display and empty state -->
+        @if (weeklyActivityCount > 0) {
+
+          <div class="chart-container">
+
+            <canvas
+              #weeklyChart
+              [hidden]="showChartEmptyState"
+            ></canvas>
+
+            @if (showChartEmptyState) {
+              <div class="chart-empty-state">
+                <span>📊</span>
+
+                <h3>No positive emissions data available</h3>
 
                 <p>
-                  <strong>Purpose:</strong>
-                  {{ activity.purpose }}
+                  No positive
+                  {{ selectedEmissionMetric === 'co2' ? 'CO₂' : 'CO₂e' }}
+                  emissions are available for this week.
                 </p>
 
-                <p>
-                  <strong>Date:</strong>
-                  {{ activity.date }}
-                </p>
+                <small>
+                  Try another emissions measure or check again
+                  when more emissions estimates are available.
+                </small>
+              </div>
+            }
 
-                <p>
-                  <strong>Distance:</strong>
-                  {{ activity.distance }} km
-                </p>
+          </div>
 
-                @if (activity.type === 'Car') {
+        } @else {
+
+          <div class="empty-state">
+            <span>📊</span>
+            <h3>No chart data available</h3>
+            <p>
+              Record activities with available emissions estimates
+              to display your weekly charts.
+            </p>
+          </div>
+
+        }
+
+        <small class="chart-note">
+          Activities without verified emissions estimates are excluded
+          from emissions charts.
+        </small>
+
+      </section>
+
+      <!-- Recorded activities -->
+      <section class="content-panel">
+
+        <div class="panel-heading">
+          <div>
+            <span class="section-label">ACTIVITY BREAKDOWN</span>
+            <h2>Your Recorded Activities</h2>
+          </div>
+
+          <span class="panel-icon">📋</span>
+        </div>
+
+        @if (weeklyActivities.length > 0) {
+
+          <div class="activity-list">
+
+            @for (activity of weeklyActivities; track activity.id) {
+
+              <article class="activity-item">
+
+                <div class="activity-details">
+
+                  <h3>{{ activity.type }} Journey</h3>
+
                   <p>
-                    <strong>Fuel type:</strong>
-                    {{ activity.fuelType }}
+                    <strong>Purpose:</strong>
+                    {{ activity.purpose }}
                   </p>
-                }
 
-                @if (activity.description) {
                   <p>
-                    <strong>Description:</strong>
-                    {{ activity.description }}
+                    <strong>Date:</strong>
+                    {{ activity.date }}
                   </p>
-                }
+
+                  <p>
+                    <strong>Distance:</strong>
+                    {{ activity.distance }} km
+                  </p>
+
+                  @if (activity.type === 'Car') {
+                    <p>
+                      <strong>Fuel type:</strong>
+                      {{ activity.fuelType }}
+                    </p>
+                  }
+
+                  @if (activity.description) {
+                    <p>
+                      <strong>Description:</strong>
+                      {{ activity.description }}
+                    </p>
+                  }
+
+                  <div class="emissions-result">
+                    <strong>Emissions estimate:</strong>
+
+                    @if (activity.emissionsKgCo2 !== null) {
+                      <p>
+                        {{ activity.emissionsKgCo2 | number:'1.2-2' }}
+                        kg CO₂
+                        <small>(Direct emissions)</small>
+                      </p>
+                    } @else if (activity.emissionsKgCo2e !== null) {
+                      <p>
+                        {{ activity.emissionsKgCo2e | number:'1.2-2' }}
+                        kg CO₂e
+                        <small>(Operational emissions)</small>
+                      </p>
+                    } @else {
+                      <p>
+                        Estimate unavailable for this transport type.
+                      </p>
+                    }
+
+                  </div>
+
+                </div>
+
+              </article>
+
+            }
+
+          </div>
+
+        } @else {
+
+          <div class="empty-state">
+            <span>📝</span>
+            <h3>No activities recorded this week</h3>
+            <p>
+              Record an activity to monitor your weekly progress.
+            </p>
+
+            <a
+              routerLink="/activity-tracker"
+              class="primary-button"
+            >
+              Record an Activity
+            </a>
+          </div>
+
+        }
+
+      </section>
+
+      <!-- Daily emissions breakdown -->
+      <section class="content-panel">
+
+        <div class="panel-heading">
+          <div>
+            <span class="section-label">YOUR TRENDS</span>
+            <h2>Daily Emissions Breakdown</h2>
+          </div>
+
+          <span class="panel-icon">📅</span>
+        </div>
+
+        <div class="daily-breakdown">
+
+          @for (day of dailyEmissions; track day.date) {
+
+            <article class="daily-item">
+
+              <div>
+                <h3>{{ day.label }}</h3>
+                <small>{{ day.date }}</small>
+                <p>{{ day.activityCount }} activities</p>
+              </div>
+
+              <div class="daily-emissions">
+
+                <p>
+                  CO₂:
+
+                  @if (day.hasCo2Data) {
+                    {{ day.co2 | number:'1.2-2' }} kg
+                  } @else {
+                    Not available
+                  }
+                </p>
+
+                <p>
+                  CO₂e:
+
+                  @if (day.hasCo2eData) {
+                    {{ day.co2e | number:'1.2-2' }} kg
+                  } @else {
+                    Not available
+                  }
+                </p>
 
               </div>
 
@@ -116,51 +398,13 @@
 
         </div>
 
-      } @else {
+      </section>
 
-        <div class="empty-state">
-          <span>📝</span>
+    }
 
-          <h3>No activities recorded this week</h3>
-
-          <p>
-            Record an activity to see your journeys and monitor
-            your weekly progress here.
-          </p>
-
-          <a routerLink="/activity-tracker" class="primary-button">
-            Record an Activity
-          </a>
-        </div>
-
-      }
-
-    </section>
-
-    <section class="content-panel">
-
-      <div class="panel-heading">
-        <div>
-          <span class="section-label">YOUR TRENDS</span>
-          <h2>Weekly Emissions Overview</h2>
-        </div>
-        <span class="panel-icon">📈</span>
-      </div>
-
-      <div class="chart-placeholder">
-        <span>📊</span>
-
-        <h3>Weekly chart coming soon</h3>
-
-        <p>
-          A visual breakdown of your daily emissions will appear
-          here once activity data and emission calculations are connected.
-        </p>
-      </div>
-
-    </section>
-
-    <a routerLink="/home" class="back-link">← Back to Home</a>
+    <a routerLink="/home" class="back-link">
+      ← Back to Home
+    </a>
 
   </main>
 
