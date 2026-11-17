@@ -80,7 +80,6 @@ def get_authenticated_client():
 def validate_activity_data(data, require_all=True):
     """Validate activity fields received from the frontend."""
 
-    # Description is deliberately excluded because it is optional.
     required_fields = [
         "category",
         "quantity",
@@ -133,7 +132,7 @@ def validate_activity_data(data, require_all=True):
 
             validated[field] = value
 
-    # Description is optional. If omitted or blank, save an empty string.
+    # Description is optional.
     if "description" in data:
         description = data["description"]
 
@@ -141,11 +140,16 @@ def validate_activity_data(data, require_all=True):
             return None, "description must be a string."
 
         validated["description"] = description.strip()
+
     elif require_all:
         validated["description"] = ""
 
     # Validate optional transport information.
-    for optional_field in ["fuel_type", "purpose"]:
+    for optional_field in [
+        "fuel_type",
+        "transport_service",
+        "purpose"
+    ]:
         if optional_field in data:
             value = data[optional_field]
 
@@ -164,8 +168,8 @@ def calculate_activity_emissions(activity):
     Calculate emissions using backend-controlled factors.
 
     Car emissions are stored as direct CO2.
-    Walking and cycling use the initial operational CO2e boundary.
-    Bus and train remain uncalculated until verified factors exist.
+    Walking and cycling use the operational CO2e boundary.
+    Bus and train use service-specific passenger-kilometre factors.
     """
 
     category = activity.get("category")
@@ -211,21 +215,22 @@ def calculate_activity_emissions(activity):
         }
 
     if category in ["Bus", "Train"]:
-        try:
-            calculate_passenger_transport_emissions(
-                distance,
-                category
-            )
-        except NotImplementedError:
-            # Do not invent a factor. Save the activity with NULL emissions.
-            return {
-                "emissions_kg_co2": None,
-                "emissions_kg_co2e": None,
-                "emission_factor": None,
-                "emission_factor_unit": None,
-                "emission_factor_source": None,
-                "emission_factor_year": None,
-            }
+        transport_service = activity.get("transport_service")
+
+        result = calculate_passenger_transport_emissions(
+            distance,
+            category,
+            transport_service
+        )
+
+        return {
+            "emissions_kg_co2": None,
+            "emissions_kg_co2e": result["emissions"],
+            "emission_factor": result["emission_factor"],
+            "emission_factor_unit": result["emission_factor_unit"],
+            "emission_factor_source": result["emission_factor_source"],
+            "emission_factor_year": result["emission_factor_year"],
+        }
 
     raise ValueError("Unsupported transport category.")
 

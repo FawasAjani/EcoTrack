@@ -4,8 +4,8 @@ EcoTrack transport emissions calculator.
 
 Car calculations estimate direct CO2 from fuel combustion.
 Walking and cycling are assigned zero operational emissions.
-Bus and train calculations are disabled until verified factors
-are added to factors.py.
+Bus and train calculations use historical Irish
+service-specific passenger-kilometre emission factors.
 """
 
 from emissions.factors import (
@@ -45,8 +45,16 @@ def calculate_car_emissions(distance_km, fuel_type):
     }
 
 
-def calculate_passenger_transport_emissions(distance_km, transport_type):
-    """Calculate bus or train emissions when a verified factor exists."""
+def calculate_passenger_transport_emissions(
+    distance_km,
+    transport_type,
+    transport_service
+):
+    """
+    Calculate bus or train emissions using the selected service factor.
+
+    Emissions are calculated in kg CO2e using passenger-kilometres.
+    """
 
     if distance_km < 0:
         raise ValueError("Distance cannot be negative.")
@@ -54,14 +62,20 @@ def calculate_passenger_transport_emissions(distance_km, transport_type):
     if transport_type not in PASSENGER_KM_FACTORS:
         raise ValueError("Unsupported passenger transport type.")
 
-    factor_data = PASSENGER_KM_FACTORS[transport_type]
-    factor = factor_data["factor"]
+    service_factors = PASSENGER_KM_FACTORS[transport_type]
 
-    if factor is None:
-        raise NotImplementedError(
-            f"{transport_type} emissions cannot be calculated yet. "
-            "A verified Irish emission factor is required."
+    if not transport_service:
+        raise ValueError(
+            f"A service must be selected for {transport_type} journeys."
         )
+
+    if transport_service not in service_factors:
+        raise ValueError(
+            f"Unsupported {transport_type} service: {transport_service}."
+        )
+
+    factor_data = service_factors[transport_service]
+    factor = factor_data["factor"]
 
     emissions = distance_km * factor
 

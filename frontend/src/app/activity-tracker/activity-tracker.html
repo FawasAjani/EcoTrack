@@ -23,7 +23,7 @@
           id="activityType"
           name="activityType"
           [(ngModel)]="activityType"
-          (ngModelChange)="fuelType = ''"
+          (ngModelChange)="fuelType = ''; transportService = ''"
           required>
           <option value="">Select transport type</option>
           <option value="Car">Car</option>
@@ -47,6 +47,36 @@
             <option value="Diesel">Diesel</option>
             <option value="Electric">Electric</option>
             <option value="Hybrid">Hybrid</option>
+          </select>
+        </div>
+      }
+
+      @if (activityType === 'Bus') {
+        <div class="form-group">
+          <label for="transportService">Bus Service</label>
+          <select
+            id="transportService"
+            name="transportService"
+            [(ngModel)]="transportService"
+            required>
+            <option value="">Select bus service</option>
+            <option value="Dublin Bus">Dublin Bus</option>
+            <option value="Bus Éireann">Bus Éireann</option>
+          </select>
+        </div>
+      }
+
+      @if (activityType === 'Train') {
+        <div class="form-group">
+          <label for="transportService">Train Service</label>
+          <select
+            id="transportService"
+            name="transportService"
+            [(ngModel)]="transportService"
+            required>
+            <option value="">Select train service</option>
+            <option value="Irish Rail">Irish Rail</option>
+            <option value="DART">DART</option>
           </select>
         </div>
       }
@@ -126,7 +156,12 @@
         <div class="activity-card">
           <h3>{{ activity.type }}</h3>
 
-          <p><strong>Fuel Type:</strong> {{ activity.fuelType }}</p>
+          @if (activity.type === 'Car') {
+            <p><strong>Fuel Type:</strong> {{ activity.fuelType }}</p>
+          } @else if (activity.type === 'Bus' || activity.type === 'Train') {
+            <p><strong>Service:</strong> {{ activity.transportService || 'Not specified' }}</p>
+          }
+
           <p><strong>Journey Purpose:</strong> {{ activity.purpose }}</p>
 
           @if (activity.description) {
@@ -147,7 +182,11 @@
             } @else if (activity.emissionsKgCo2e !== null) {
               <p>
                 <strong>{{ activity.emissionsKgCo2e | number:'1.2-2' }} kg CO₂e</strong>
-                <span>(operational emissions)</span>
+                @if (activity.type === 'Bus' || activity.type === 'Train') {
+                  <span>(estimated passenger transport emissions)</span>
+                } @else {
+                  <span>(operational emissions)</span>
+                }
               </p>
             } @else {
               <p>Emission estimate unavailable for this transport type.</p>

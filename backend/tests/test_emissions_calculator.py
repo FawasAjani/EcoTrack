@@ -58,11 +58,72 @@ def test_negative_walking_distance_is_rejected():
         calculate_zero_operational_emissions(-5, "Walking")
 
 
-def test_bus_calculation_waits_for_verified_factor():
-    with pytest.raises(NotImplementedError):
-        calculate_passenger_transport_emissions(20, "Bus")
+@pytest.mark.parametrize(
+    "transport_type,transport_service,expected_factor,expected_emissions",
+    [
+        ("Bus", "Dublin Bus", 0.024, 0.48),
+        ("Bus", "Bus Éireann", 0.031, 0.62),
+        ("Train", "Irish Rail", 0.024, 0.48),
+        ("Train", "DART", 0.014, 0.28),
+    ],
+)
+def test_passenger_transport_emissions(
+    transport_type,
+    transport_service,
+    expected_factor,
+    expected_emissions,
+):
+    result = calculate_passenger_transport_emissions(
+        20,
+        transport_type,
+        transport_service,
+    )
+
+    assert result["emissions"] == pytest.approx(expected_emissions)
+    assert result["emission_factor"] == expected_factor
+    assert result["emission_factor_unit"] == (
+        "kg CO2e/passenger-km"
+    )
+    assert result["metric"] == "CO2e"
+    assert result["emission_factor_source"]
+    assert result["emission_factor_year"] == 2023
 
 
-def test_train_calculation_waits_for_verified_factor():
-    with pytest.raises(NotImplementedError):
-        calculate_passenger_transport_emissions(20, "Train")
+@pytest.mark.parametrize(
+    "transport_type,invalid_service",
+    [
+        ("Bus", "Irish Rail"),
+        ("Train", "Dublin Bus"),
+        ("Bus", "Unknown Bus"),
+        ("Train", "Unknown Train"),
+    ],
+)
+def test_invalid_passenger_transport_service_is_rejected(
+    transport_type,
+    invalid_service,
+):
+    with pytest.raises(ValueError):
+        calculate_passenger_transport_emissions(
+            20,
+            transport_type,
+            invalid_service,
+        )
+
+
+@pytest.mark.parametrize("transport_type", ["Bus", "Train"])
+def test_passenger_transport_requires_service(transport_type):
+    with pytest.raises(ValueError):
+        calculate_passenger_transport_emissions(
+            20,
+            transport_type,
+            None,
+        )
+
+
+def test_negative_passenger_transport_distance_is_rejected():
+    with pytest.raises(ValueError):
+        calculate_passenger_transport_emissions(
+            -20,
+            "Bus",
+            "Dublin Bus",
+        )

@@ -8,6 +8,7 @@ export interface Activity {
   id?: string;
   type: string;
   fuelType: string;
+  transportService?: string;
   purpose: string;
   description: string;
   date: string;
@@ -26,6 +27,7 @@ interface ActivityApiRecord {
   id: string;
   category: string;
   fuel_type?: string;
+  transport_service?: string | null;
   purpose?: string;
   description: string;
   activity_date: string;
@@ -78,6 +80,7 @@ export class ActivityService {
       id: activity.id,
       type: activity.category,
       fuelType: activity.fuel_type || 'Not specified',
+      transportService: activity.transport_service || '',
       purpose: activity.purpose || '',
       description: activity.description,
       date: activity.activity_date,
@@ -114,6 +117,7 @@ export class ActivityService {
     const payload = {
       category: activity.type,
       fuel_type: activity.fuelType,
+      transport_service: activity.transportService || null,
       purpose: activity.purpose,
       description: activity.description,
       activity_date: activity.date,
@@ -147,7 +151,7 @@ export class ActivityService {
   ): Promise<Activity> {
     const headers = await this.getHeaders();
 
-    const payload: Record<string, string | number> = {};
+    const payload: Record<string, string | number | null> = {};
 
     if (activity.type !== undefined) {
       payload['category'] = activity.type;
@@ -155,6 +159,10 @@ export class ActivityService {
 
     if (activity.fuelType !== undefined) {
       payload['fuel_type'] = activity.fuelType;
+    }
+
+    if (activity.transportService !== undefined) {
+      payload['transport_service'] = activity.transportService || null;
     }
 
     if (activity.purpose !== undefined) {

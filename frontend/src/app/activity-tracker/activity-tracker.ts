@@ -1,3 +1,4 @@
+
 import { DecimalPipe } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -14,6 +15,7 @@ import { Activity, ActivityService } from '../services/activity';
 export class ActivityTracker implements OnInit {
   activityType = '';
   fuelType = '';
+  transportService = '';
   purpose = '';
   description = '';
   activityDate = '';
@@ -57,7 +59,11 @@ export class ActivityTracker implements OnInit {
       !this.activityDate ||
       this.distance === null ||
       this.distance <= 0 ||
-      (this.activityType === 'Car' && !this.fuelType)
+      (this.activityType === 'Car' && !this.fuelType) ||
+      (
+        (this.activityType === 'Bus' || this.activityType === 'Train') &&
+        !this.transportService
+      )
     ) {
       alert('Please complete all required fields with valid information.');
       return;
@@ -68,6 +74,10 @@ export class ActivityTracker implements OnInit {
       fuelType: this.activityType === 'Car'
         ? this.fuelType
         : 'Not specified',
+      transportService:
+        this.activityType === 'Bus' || this.activityType === 'Train'
+          ? this.transportService
+          : '',
       purpose: this.purpose,
       description: this.description.trim(),
       date: this.activityDate,
@@ -92,6 +102,7 @@ export class ActivityTracker implements OnInit {
       // Reset the form after a successful save.
       this.activityType = '';
       this.fuelType = '';
+      this.transportService = '';
       this.purpose = '';
       this.description = '';
       this.activityDate = '';

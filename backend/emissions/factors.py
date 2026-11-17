@@ -24,21 +24,69 @@ FUEL_FACTORS = {
     },
 }
 
-# Passenger transport factors.
-# PLACEHOLDERS: replace these with verified Irish IPTEM factors
-# before using them for production emissions reporting.
+# Historical Irish passenger transport factors.
+#
+# Source: CIÉ presentation:
+# "Challenge to Decarbonise Transport and Enable Modal Shift"
+# Presented by Caoimhe Donnelly, Chief Sustainability Officer,
+# September 2023.
+#
+# The presentation's underlying reporting year and detailed
+# calculation methodology were not specified in the material reviewed.
+# These are historical published comparison factors, not verified
+# current emission rates.
+#
+# Values converted from grams to kilograms:
+# 24 g = 0.024 kg
+# 31 g = 0.031 kg
+# 14 g = 0.014 kg
+#
+# Unit: kg CO2e per passenger-kilometre.
+
 PASSENGER_KM_FACTORS = {
     "Bus": {
-        "factor": None,
-        "unit": "kg CO2e/passenger-km",
-        "source": "Irish IPTEM dataset - verification required",
-        "year": None,
+        "Dublin Bus": {
+            "factor": 0.024,
+            "unit": "kg CO2e/passenger-km",
+            "source": (
+                "CIÉ, Challenge to Decarbonise Transport and Enable "
+                "Modal Shift, September 2023 presentation. "
+                "Underlying reporting year and methodology not specified."
+            ),
+            "year": 2023,
+        },
+        "Bus Éireann": {
+            "factor": 0.031,
+            "unit": "kg CO2e/passenger-km",
+            "source": (
+                "CIÉ, Challenge to Decarbonise Transport and Enable "
+                "Modal Shift, September 2023 presentation. "
+                "Underlying reporting year and methodology not specified."
+            ),
+            "year": 2023,
+        },
     },
     "Train": {
-        "factor": None,
-        "unit": "kg CO2e/passenger-km",
-        "source": "Irish IPTEM dataset - verification required",
-        "year": None,
+        "Irish Rail": {
+            "factor": 0.024,
+            "unit": "kg CO2e/passenger-km",
+            "source": (
+                "CIÉ, Challenge to Decarbonise Transport and Enable "
+                "Modal Shift, September 2023 presentation. "
+                "Underlying reporting year and methodology not specified."
+            ),
+            "year": 2023,
+        },
+        "DART": {
+            "factor": 0.014,
+            "unit": "kg CO2e/passenger-km",
+            "source": (
+                "CIÉ, Challenge to Decarbonise Transport and Enable "
+                "Modal Shift, September 2023 presentation. "
+                "Underlying reporting year and methodology not specified."
+            ),
+            "year": 2023,
+        },
     },
 }
 
