@@ -36,12 +36,14 @@ export interface FoodEntry {
   quantity_grams: number;
   activity_date: string;
   food_name_snapshot: string;
+  safad_code_snapshot?: string;
   emissions_kg_co2e: number;
   emission_factor_snapshot: number;
   emission_factor_unit: string;
   dataset_name_snapshot: string;
   dataset_version_snapshot: string;
   country_model_snapshot: string;
+  source_indicator_snapshot?: string;
   created_at: string;
 }
 
@@ -49,6 +51,13 @@ interface FoodEntryApiResponse {
   status: string;
   message?: string;
   entry?: FoodEntry;
+}
+
+interface FoodEntriesApiResponse {
+  status: string;
+  message?: string;
+  food_entries?: FoodEntry[];
+  count?: number;
 }
 
 @Injectable({
@@ -86,6 +95,19 @@ export class FoodService {
     );
 
     return response.food_items || [];
+  }
+
+  async getFoodEntries(): Promise<FoodEntry[]> {
+    const headers = await this.getHeaders();
+
+    const response = await firstValueFrom(
+      this.http.get<FoodEntriesApiResponse>(
+        `${this.apiUrl}/entries`,
+        { headers }
+      )
+    );
+
+    return response.food_entries || [];
   }
 
   async createFoodEntry(
