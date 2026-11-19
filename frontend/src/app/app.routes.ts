@@ -1,4 +1,4 @@
-
+import { FoodTracker } from './food-tracker/food-tracker';
 import { Routes } from '@angular/router';
 
 import { Login } from './login/login';
@@ -15,5 +15,6 @@ export const routes: Routes = [
   { path: 'home', component: Home },
   { path: 'activity-tracker', component: ActivityTracker },
   { path: 'weekly-summary', component: WeeklySummary },
+  { path: 'food-tracker', component: FoodTracker },
   { path: '', redirectTo: 'login', pathMatch: 'full' }
 ];
