@@ -1,6 +1,7 @@
 
 from datetime import date
 from uuid import UUID
+import math
 
 from flask import Blueprint, jsonify, request
 
@@ -10,6 +11,10 @@ from emissions.food_calculator import calculate_food_emissions
 
 food_bp = Blueprint("food", __name__, url_prefix="/api/food")
 
+
+# ==========================================================
+# GET FOOD CATALOGUE
+# ==========================================================
 
 @food_bp.route("/items", methods=["GET"])
 def get_food_items():
@@ -34,10 +39,12 @@ def get_food_items():
             .execute()
         )
 
+        food_items = response.data or []
+
         return jsonify({
             "status": "success",
-            "food_items": response.data,
-            "count": len(response.data)
+            "food_items": food_items,
+            "count": len(food_items)
         }), 200
 
     except Exception as error:
@@ -52,8 +59,67 @@ def get_food_items():
         }), 500
 
 
+# ==========================================================
+# GET USER FOOD HISTORY
+# ==========================================================
+
+@food_bp.route("/entries", methods=["GET"])
+def get_food_entries():
+    client, user_id, error_response = get_authenticated_client()
+
+    if error_response:
+        return error_response
+
+    try:
+        response = (
+            client.table("food_entries")
+            .select(
+                "id, user_id, food_item_id, "
+                "quantity_grams, activity_date, "
+                "food_name_snapshot, safad_code_snapshot, "
+                "emissions_kg_co2e, "
+                "emission_factor_snapshot, "
+                "emission_factor_unit, "
+                "dataset_name_snapshot, "
+                "dataset_version_snapshot, "
+                "country_model_snapshot, "
+                "source_indicator_snapshot, "
+                "created_at"
+            )
+            .eq("user_id", user_id)
+            .order("activity_date", desc=True)
+            .order("created_at", desc=True)
+            .limit(100)
+            .execute()
+        )
+
+        entries = response.data or []
+
+        return jsonify({
+            "status": "success",
+            "food_entries": entries,
+            "count": len(entries)
+        }), 200
+
+    except Exception as error:
+        print(
+            f"Get food entries diagnostic: "
+            f"{type(error).__name__}: {error}"
+        )
+
+        return jsonify({
+            "status": "error",
+            "message": "Unable to retrieve food history."
+        }), 500
+
+
+# ==========================================================
+# CREATE FOOD ENTRY
+# ==========================================================
+
 @food_bp.route("/entries", methods=["POST"])
 def create_food_entry():
+
     # Authenticate the user.
     client, user_id, error_response = get_authenticated_client()
 
@@ -76,6 +142,7 @@ def create_food_entry():
     # Validate the food item ID.
     try:
         food_item_id = str(UUID(str(food_item_id)))
+
     except (ValueError, TypeError, AttributeError):
         return jsonify({
             "status": "error",
@@ -92,13 +159,16 @@ def create_food_entry():
     try:
         quantity = float(quantity_grams)
 
-        if not quantity > 0 or not __import__("math").isfinite(quantity):
+        if not math.isfinite(quantity) or quantity <= 0:
             raise ValueError()
 
     except (TypeError, ValueError, OverflowError):
         return jsonify({
             "status": "error",
-            "message": "Food quantity must be a finite number greater than zero."
+            "message": (
+                "Food quantity must be a finite number "
+                "greater than zero."
+            )
         }), 400
 
     # Validate the optional activity date.
@@ -135,7 +205,10 @@ def create_food_entry():
         if not food_response.data:
             return jsonify({
                 "status": "error",
-                "message": "The selected food item was not found or is inactive."
+                "message": (
+                    "The selected food item was not found "
+                    "or is inactive."
+                )
             }), 404
 
         food = food_response.data[0]
@@ -162,8 +235,7 @@ def create_food_entry():
             "source_indicator_snapshot": food["source_indicator"]
         }
 
-        # Only supply the date when the user provided one.
-        # Otherwise, the database CURRENT_DATE default is used.
+        # Supply the date only when the user provided one.
         if activity_date is not None:
             entry["activity_date"] = activity_date
 
@@ -175,7 +247,9 @@ def create_food_entry():
         )
 
         if not save_response.data:
-            raise RuntimeError("The food entry was not returned after insertion.")
+            raise RuntimeError(
+                "The food entry was not returned after insertion."
+            )
 
         saved_entry = save_response.data[0]
 

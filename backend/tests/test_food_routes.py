@@ -262,3 +262,148 @@ def test_create_food_entry_rejects_missing_json(client, authenticated_user):
         )
 
     assert response.status_code == 400
+
+
+def configure_food_entries_query(mock_client, entries):
+    """Configure the Supabase query used to retrieve food history."""
+    query = MagicMock()
+
+    mock_client.table.return_value.select.return_value = query
+    query.eq.return_value = query
+    query.order.return_value = query
+    query.limit.return_value = query
+    query.execute.return_value.data = entries
+
+    return query
+
+
+def test_get_food_entries_success(
+    client,
+    authenticated_user
+):
+    mock_client = authenticated_user[0]
+
+    sample_entries = [
+        {
+            "id": "22222222-2222-4222-8222-222222222222",
+            "user_id": "test-user-123",
+            "food_name_snapshot": "Beef meat",
+            "quantity_grams": 200,
+            "emissions_kg_co2e": 6.43864,
+            "activity_date": "2026-11-19"
+        }
+    ]
+
+    query = configure_food_entries_query(
+        mock_client,
+        sample_entries
+    )
+
+    with patch(
+        "routes.food.get_authenticated_client",
+        return_value=authenticated_user
+    ):
+        response = client.get("/api/food/entries")
+
+    assert response.status_code == 200
+
+    result = response.get_json()
+
+    assert result["status"] == "success"
+    assert result["count"] == 1
+    assert len(result["food_entries"]) == 1
+    assert result["food_entries"][0]["food_name_snapshot"] == "Beef meat"
+    assert result["food_entries"][0]["emissions_kg_co2e"] == 6.43864
+
+    query.eq.assert_called_with("user_id", "test-user-123")
+    query.limit.assert_called_with(100)
+
+
+def test_get_food_entries_returns_empty_history(
+    client,
+    authenticated_user
+):
+    mock_client = authenticated_user[0]
+
+    configure_food_entries_query(mock_client, [])
+
+    with patch(
+        "routes.food.get_authenticated_client",
+        return_value=authenticated_user
+    ):
+        response = client.get("/api/food/entries")
+
+    assert response.status_code == 200
+
+    result = response.get_json()
+
+    assert result["status"] == "success"
+    assert result["food_entries"] == []
+    assert result["count"] == 0
+
+
+def test_get_food_entries_rejects_unauthenticated_request(client):
+    authentication_error = (
+        None,
+        None,
+        (
+            app.response_class(
+                response='{"status":"error","message":"A valid Bearer token is required."}',
+                status=401,
+                mimetype="application/json"
+            ),
+            401
+        )
+    )
+
+    with patch(
+        "routes.food.get_authenticated_client",
+        return_value=authentication_error
+    ):
+        response = client.get("/api/food/entries")
+
+    assert response.status_code == 401
+
+
+def test_get_food_entries_filters_by_authenticated_user(
+    client,
+    authenticated_user
+):
+    mock_client = authenticated_user[0]
+
+    query = configure_food_entries_query(mock_client, [])
+
+    with patch(
+        "routes.food.get_authenticated_client",
+        return_value=authenticated_user
+    ):
+        response = client.get("/api/food/entries")
+
+    assert response.status_code == 200
+
+    # Confirm the query restricts results to the logged-in user.
+    query.eq.assert_called_once_with(
+        "user_id",
+        "test-user-123"
+    )
+
+
+def test_get_food_entries_handles_database_error(
+    client,
+    authenticated_user
+):
+    mock_client = authenticated_user[0]
+
+    query = configure_food_entries_query(mock_client, [])
+    query.execute.side_effect = Exception("Database connection failed")
+
+    with patch(
+        "routes.food.get_authenticated_client",
+        return_value=authenticated_user
+    ):
+        response = client.get("/api/food/entries")
+
+    assert response.status_code == 500
+
+    result = response.get_json()
+    assert result["status"] == "error"
