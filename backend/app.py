@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 
 from routes.activities import activities_bp
 from routes.food import food_bp
+from routes.dashboard import dashboard_bp
 
 load_dotenv()
 
@@ -25,6 +26,7 @@ CORS(app, resources={
 # Register API endpoints.
 app.register_blueprint(activities_bp)
 app.register_blueprint(food_bp)
+app.register_blueprint(dashboard_bp)
 
 
 @app.route("/api/health", methods=["GET"])
