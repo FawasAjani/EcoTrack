@@ -269,3 +269,59 @@ def create_food_entry():
             "status": "error",
             "message": "Unable to save the food entry."
         }), 500
+
+
+# ==========================================================
+# DELETE USER FOOD ENTRY
+# ==========================================================
+
+@food_bp.route("/entries/<entry_id>", methods=["DELETE"])
+def delete_food_entry(entry_id):
+
+    # Authenticate the user.
+    client, user_id, error_response = get_authenticated_client()
+
+    if error_response:
+        return error_response
+
+    # Validate the food entry ID.
+    try:
+        entry_id = str(UUID(str(entry_id)))
+
+    except (ValueError, TypeError, AttributeError):
+        return jsonify({
+            "status": "error",
+            "message": "A valid food entry ID is required."
+        }), 400
+
+    try:
+        # Only delete an entry belonging to this user.
+        response = (
+            client.table("food_entries")
+            .delete()
+            .eq("id", entry_id)
+            .eq("user_id", user_id)
+            .execute()
+        )
+
+        if not response.data:
+            return jsonify({
+                "status": "error",
+                "message": "Food entry not found."
+            }), 404
+
+        return jsonify({
+            "status": "success",
+            "message": "Food entry deleted successfully."
+        }), 200
+
+    except Exception as error:
+        print(
+            f"Delete food entry diagnostic: "
+            f"{type(error).__name__}: {error}"
+        )
+
+        return jsonify({
+            "status": "error",
+            "message": "Unable to delete the food entry."
+        }), 500

@@ -18,26 +18,31 @@ import {
 @Component({
   selector: 'app-food-tracker',
   standalone: true,
- imports: [
-  CommonModule,
-  FormsModule,
-  RouterLink
-],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink
+  ],
   templateUrl: './food-tracker.html',
   styleUrl: './food-tracker.css'
 })
 export class FoodTracker implements OnInit {
 
   foodItems: FoodItem[] = [];
+  foodEntries: FoodEntry[] = [];
 
   selectedFoodId = '';
   quantityGrams: number | null = null;
   activityDate = this.getTodayDate();
 
   isLoading = true;
+  isLoadingHistory = true;
   isSaving = false;
 
+  deletingEntryId: string | null = null;
+
   errorMessage = '';
+  historyErrorMessage = '';
   successMessage = '';
 
   savedEntry: FoodEntry | null = null;
@@ -48,7 +53,10 @@ export class FoodTracker implements OnInit {
   ) {}
 
   async ngOnInit(): Promise<void> {
-    await this.loadFoodItems();
+    await Promise.all([
+      this.loadFoodItems(),
+      this.loadFoodEntries()
+    ]);
   }
 
   private getTodayDate(): string {
@@ -88,6 +96,33 @@ export class FoodTracker implements OnInit {
     }
   }
 
+  async loadFoodEntries(): Promise<void> {
+    this.isLoadingHistory = true;
+    this.historyErrorMessage = '';
+
+    try {
+      this.foodEntries = await this.foodService.getFoodEntries();
+
+      console.log(
+        'Food history loaded:',
+        this.foodEntries.length
+      );
+
+    } catch (error) {
+      console.error(
+        'Unable to load food history:',
+        error
+      );
+
+      this.historyErrorMessage =
+        'Unable to load your food history. Please try again.';
+
+    } finally {
+      this.isLoadingHistory = false;
+      this.cdr.detectChanges();
+    }
+  }
+
   get selectedFood(): FoodItem | undefined {
     return this.foodItems.find(
       food => food.id === this.selectedFoodId
@@ -112,8 +147,20 @@ export class FoodTracker implements OnInit {
     );
   }
 
+  get totalFoodEmissions(): number {
+    return this.foodEntries.reduce(
+      (total, entry) => total + Number(entry.emissions_kg_co2e || 0),
+      0
+    );
+  }
+
+  get totalFoodEntries(): number {
+    return this.foodEntries.length;
+  }
+
   async saveFoodEntry(): Promise<void> {
     this.errorMessage = '';
+    this.historyErrorMessage = '';
     this.successMessage = '';
     this.savedEntry = null;
 
@@ -149,11 +196,18 @@ export class FoodTracker implements OnInit {
 
       this.savedEntry = savedEntry;
 
-      this.successMessage =
-        'Food entry saved successfully.';
-
       this.quantityGrams = null;
       this.selectedFoodId = '';
+
+      await this.loadFoodEntries();
+
+      if (!this.historyErrorMessage) {
+        this.successMessage =
+          'Food entry saved successfully.';
+      } else {
+        this.successMessage =
+          'Food entry saved successfully, but your history could not be refreshed.';
+      }
 
     } catch (error) {
       console.error(
@@ -166,6 +220,49 @@ export class FoodTracker implements OnInit {
 
     } finally {
       this.isSaving = false;
+      this.cdr.detectChanges();
+    }
+  }
+
+  async deleteFoodEntry(entry: FoodEntry): Promise<void> {
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${entry.food_name_snapshot}" from your food history?`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.errorMessage = '';
+    this.historyErrorMessage = '';
+    this.successMessage = '';
+
+    this.deletingEntryId = entry.id;
+
+    try {
+      await this.foodService.deleteFoodEntry(entry.id);
+
+      await this.loadFoodEntries();
+
+      if (!this.historyErrorMessage) {
+        this.successMessage =
+          'Food entry deleted successfully.';
+      } else {
+        this.successMessage =
+          'Food entry deleted successfully, but your history could not be refreshed.';
+      }
+
+    } catch (error) {
+      console.error(
+        'Unable to delete food entry:',
+        error
+      );
+
+      this.errorMessage =
+        'Unable to delete this food entry. Please try again.';
+
+    } finally {
+      this.deletingEntryId = null;
       this.cdr.detectChanges();
     }
   }

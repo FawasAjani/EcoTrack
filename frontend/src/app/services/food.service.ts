@@ -60,6 +60,11 @@ interface FoodEntriesApiResponse {
   count?: number;
 }
 
+interface FoodEntryDeleteApiResponse {
+  status: string;
+  message?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -130,5 +135,22 @@ export class FoodService {
     }
 
     return response.entry;
+  }
+
+  async deleteFoodEntry(entryId: string): Promise<void> {
+    const headers = await this.getHeaders();
+
+    const response = await firstValueFrom(
+      this.http.delete<FoodEntryDeleteApiResponse>(
+        `${this.apiUrl}/entries/${encodeURIComponent(entryId)}`,
+        { headers }
+      )
+    );
+
+    if (response.status !== 'success') {
+      throw new Error(
+        response.message || 'Unable to delete the food entry.'
+      );
+    }
   }
 }

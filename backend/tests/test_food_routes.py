@@ -407,3 +407,197 @@ def test_get_food_entries_handles_database_error(
 
     result = response.get_json()
     assert result["status"] == "error"
+
+
+# ==========================================================
+# DELETE FOOD ENTRY TESTS
+# ==========================================================
+
+def configure_food_delete_query(mock_client, deleted_entries):
+    """Configure the Supabase query used to delete food entries."""
+    query = MagicMock()
+
+    mock_client.table.return_value.delete.return_value = query
+
+    query.eq.return_value = query
+    query.execute.return_value.data = deleted_entries
+
+    return query
+
+
+def test_delete_food_entry_success(
+    client,
+    authenticated_user
+):
+    mock_client = authenticated_user[0]
+
+    entry_id = "22222222-2222-4222-8222-222222222222"
+
+    deleted_entry = {
+        "id": entry_id,
+        "user_id": "test-user-123",
+        "food_name_snapshot": "Beef meat"
+    }
+
+    query = configure_food_delete_query(
+        mock_client,
+        [deleted_entry]
+    )
+
+    with patch(
+        "routes.food.get_authenticated_client",
+        return_value=authenticated_user
+    ):
+        response = client.delete(
+            f"/api/food/entries/{entry_id}"
+        )
+
+    assert response.status_code == 200
+
+    result = response.get_json()
+
+    assert result["status"] == "success"
+    assert result["message"] == "Food entry deleted successfully."
+
+    query.eq.assert_any_call("id", entry_id)
+    query.eq.assert_any_call("user_id", "test-user-123")
+
+
+def test_delete_food_entry_rejects_invalid_id(
+    client,
+    authenticated_user
+):
+    with patch(
+        "routes.food.get_authenticated_client",
+        return_value=authenticated_user
+    ):
+        response = client.delete(
+            "/api/food/entries/not-a-valid-id"
+        )
+
+    assert response.status_code == 400
+
+    result = response.get_json()
+    assert result["status"] == "error"
+
+
+def test_delete_food_entry_rejects_unauthenticated_request(
+    client
+):
+    authentication_error = (
+        None,
+        None,
+        (
+            app.response_class(
+                response='{"status":"error","message":"A valid Bearer token is required."}',
+                status=401,
+                mimetype="application/json"
+            ),
+            401
+        )
+    )
+
+    with patch(
+        "routes.food.get_authenticated_client",
+        return_value=authentication_error
+    ):
+        response = client.delete(
+            "/api/food/entries/22222222-2222-4222-8222-222222222222"
+        )
+
+    assert response.status_code == 401
+
+    result = response.get_json()
+    assert result["status"] == "error"
+
+
+def test_delete_food_entry_returns_404_when_not_found(
+    client,
+    authenticated_user
+):
+    mock_client = authenticated_user[0]
+
+    entry_id = "22222222-2222-4222-8222-222222222222"
+
+    query = configure_food_delete_query(
+        mock_client,
+        []
+    )
+
+    with patch(
+        "routes.food.get_authenticated_client",
+        return_value=authenticated_user
+    ):
+        response = client.delete(
+            f"/api/food/entries/{entry_id}"
+        )
+
+    assert response.status_code == 404
+
+    result = response.get_json()
+    assert result["status"] == "error"
+
+    query.eq.assert_any_call("id", entry_id)
+    query.eq.assert_any_call("user_id", "test-user-123")
+
+
+def test_delete_food_entry_cannot_delete_another_users_entry(
+    client,
+    authenticated_user
+):
+    mock_client = authenticated_user[0]
+
+    entry_id = "22222222-2222-4222-8222-222222222222"
+
+    # Simulate an entry that does not belong to the logged-in user.
+    query = configure_food_delete_query(
+        mock_client,
+        []
+    )
+
+    with patch(
+        "routes.food.get_authenticated_client",
+        return_value=authenticated_user
+    ):
+        response = client.delete(
+            f"/api/food/entries/{entry_id}"
+        )
+
+    assert response.status_code == 404
+
+    # Confirm that the deletion query includes the authenticated user ID.
+    query.eq.assert_any_call(
+        "user_id",
+        "test-user-123"
+    )
+
+
+def test_delete_food_entry_handles_database_error(
+    client,
+    authenticated_user
+):
+    mock_client = authenticated_user[0]
+
+    entry_id = "22222222-2222-4222-8222-222222222222"
+
+    query = configure_food_delete_query(
+        mock_client,
+        []
+    )
+
+    query.execute.side_effect = Exception(
+        "Database connection failed"
+    )
+
+    with patch(
+        "routes.food.get_authenticated_client",
+        return_value=authenticated_user
+    ):
+        response = client.delete(
+            f"/api/food/entries/{entry_id}"
+        )
+
+    assert response.status_code == 500
+
+    result = response.get_json()
+    assert result["status"] == "error"

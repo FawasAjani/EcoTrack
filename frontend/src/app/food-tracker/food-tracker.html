@@ -19,6 +19,7 @@
     </p>
   </section>
 
+  <!-- Food Entry Form -->
   <section class="food-form-section">
     <h2>Log a Food Entry</h2>
 
@@ -91,6 +92,7 @@
         />
       </div>
 
+      <!-- Live Emissions Estimate -->
       <div *ngIf="selectedFood" class="emission-preview">
 
         <h3>Emissions Estimate</h3>
@@ -137,53 +139,159 @@
 
   </section>
 
-  <section class="recorded-foods">
+  <!-- Food Emissions Summary -->
+  <section class="food-summary">
 
-    <h2>Saved Food Entry</h2>
+    <h2>Food Emissions Summary</h2>
 
-    <div *ngIf="savedEntry" class="food-entry-card">
+    <p class="section-description">
+      An overview of your recorded food consumption.
+    </p>
 
-      <h3>{{ savedEntry.food_name_snapshot }}</h3>
+    <div class="summary-cards">
 
-      <p>
-        <strong>Quantity:</strong>
-        {{ savedEntry.quantity_grams }} g
-      </p>
-
-      <p>
-        <strong>Date:</strong>
-        {{ savedEntry.activity_date }}
-      </p>
-
-      <div class="emissions-information">
-        <h4>Environmental Impact</h4>
-
-        <p class="saved-emissions">
-          {{ savedEntry.emissions_kg_co2e | number:'1.3-6' }}
-          kg CO&#8322;e
+      <article class="summary-card">
+        <h3>Total Food Entries</h3>
+        <p class="summary-value">
+          {{ totalFoodEntries }}
         </p>
+        <span>Recorded entries</span>
+      </article>
 
-        <p>
-          <strong>Emission factor:</strong>
-          {{ savedEntry.emission_factor_snapshot }}
-          {{ savedEntry.emission_factor_unit }}
+      <article class="summary-card">
+        <h3>Total Food Emissions</h3>
+        <p class="summary-value">
+          {{ totalFoodEmissions | number:'1.3-3' }}
         </p>
-
-        <p>
-          <strong>Dataset:</strong>
-          {{ savedEntry.dataset_name_snapshot }}
-          {{ savedEntry.dataset_version_snapshot }}
-        </p>
-      </div>
+        <span>kg CO&#8322;e</span>
+      </article>
 
     </div>
 
-    <p *ngIf="!savedEntry" class="empty-message">
-      Your saved food entry will appear here after you record it.
+  </section>
+
+  <!-- Persistent Food History -->
+  <section class="recorded-foods">
+
+    <div class="history-header">
+      <div>
+        <h2>Food History</h2>
+        <p class="section-description">
+          View your previously recorded food entries and their environmental impact.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        class="refresh-button"
+        (click)="loadFoodEntries()"
+        [disabled]="isLoadingHistory"
+      >
+        {{ isLoadingHistory ? 'Loading...' : 'Refresh History' }}
+      </button>
+    </div>
+
+    <p *ngIf="isLoadingHistory" class="status-message">
+      Loading your food history...
+    </p>
+
+    <div
+      *ngIf="historyErrorMessage"
+      class="error-message"
+      role="alert"
+    >
+      {{ historyErrorMessage }}
+    </div>
+
+    <div
+      *ngIf="!isLoadingHistory && !historyErrorMessage && foodEntries.length === 0"
+      class="empty-message"
+    >
+      <h3>No food entries yet</h3>
+      <p>
+        Your food history will appear here after you record your first meal.
+      </p>
+    </div>
+
+    <div
+      *ngIf="!isLoadingHistory && foodEntries.length > 0"
+      class="food-history-list"
+    >
+
+      <article
+        class="food-entry-card"
+        *ngFor="let entry of foodEntries"
+      >
+
+        <div class="food-entry-header">
+          <div>
+            <h3>{{ entry.food_name_snapshot }}</h3>
+            <p class="entry-date">
+              {{ entry.activity_date | date:'dd MMM yyyy' }}
+            </p>
+          </div>
+
+          <span class="saved-emissions">
+            {{ entry.emissions_kg_co2e | number:'1.3-6' }}
+            kg CO&#8322;e
+          </span>
+        </div>
+
+        <div class="entry-details">
+
+          <p>
+            <strong>Quantity:</strong>
+            {{ entry.quantity_grams | number:'1.0-2' }} g
+          </p>
+
+          <p>
+            <strong>Emission factor:</strong>
+            {{ entry.emission_factor_snapshot | number:'1.3-4' }}
+            {{ entry.emission_factor_unit }}
+          </p>
+
+          <p>
+            <strong>Data source:</strong>
+            {{ entry.dataset_name_snapshot }}
+            {{ entry.dataset_version_snapshot }}
+          </p>
+
+          <p>
+            <strong>Country model:</strong>
+            {{ entry.country_model_snapshot }}
+          </p>
+
+        </div>
+
+        <div class="entry-actions">
+          <button
+            type="button"
+            class="delete-button"
+            (click)="deleteFoodEntry(entry)"
+            [disabled]="deletingEntryId === entry.id"
+          >
+            {{
+              deletingEntryId === entry.id
+                ? 'Deleting...'
+                : 'Delete Entry'
+            }}
+          </button>
+        </div>
+
+      </article>
+
+    </div>
+
+    <p
+      *ngIf="!isLoadingHistory && foodEntries.length > 0"
+      class="history-note"
+    >
+      Showing up to the latest 100 recorded food entries.
     </p>
 
   </section>
 
+  <!-- Food Catalogue -->
   <section class="food-catalogue">
 
     <h2>Food Catalogue</h2>
