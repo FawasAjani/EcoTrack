@@ -1,7 +1,6 @@
 
 <div class="home-page">
 
-  <!-- Main navigation for moving between EcoTrack pages -->
   <nav class="navbar">
     <a class="brand" routerLink="/home">EcoTrack</a>
 
@@ -17,7 +16,6 @@
 
   <main class="main-content">
 
-    <!-- Welcome section introducing EcoTrack and its main purpose -->
     <section class="welcome-section">
       <div class="welcome-text">
         <span class="welcome-label">YOUR SUSTAINABLE JOURNEY STARTS HERE</span>
@@ -26,18 +24,16 @@
           Understand your carbon footprint, monitor your everyday activities
           and discover practical ways to live more sustainably.
         </p>
-
         <a routerLink="/activity-tracker" class="primary-button">
           Start Tracking
         </a>
       </div>
 
       <div class="welcome-icon">
-        <span>🌱</span>
+        <span>&#127793;</span>
       </div>
     </section>
 
-    <!-- Dashboard summary cards for displaying carbon emission metrics -->
     <section class="dashboard-heading">
       <div>
         <span class="section-label">YOUR OVERVIEW</span>
@@ -48,30 +44,46 @@
 
     <section class="summary-grid">
 
-      <article class="summary-card">
-        <span class="card-icon">🌍</span>
-        <h3>Total Emissions</h3>
-        <p class="summary-value">Awaiting data</p>
-        <small>Your overall recorded carbon footprint</small>
-      </article>
+      @if (isLoading) {
+        <p class="dashboard-status">Loading your emissions data...</p>
+      } @else if (errorMessage) {
+        <div class="dashboard-status error-message">
+          <p>{{ errorMessage }}</p>
+          <button type="button" class="retry-button" (click)="loadDashboard()">
+            Try Again
+          </button>
+        </div>
+      } @else if (summary) {
+        <article class="summary-card">
+          <span class="card-icon">&#129367;</span>
+          <h3>Food Emissions</h3>
+          <p class="summary-value">
+            {{ formatEmissions(summary.total_food_emissions) }}
+          </p>
+          <small>Total recorded emissions from food entries</small>
+        </article>
 
-      <article class="summary-card">
-        <span class="card-icon">📅</span>
-        <h3>Daily Emissions</h3>
-        <p class="summary-value">Awaiting data</p>
-        <small>Your estimated daily footprint</small>
-      </article>
+        <article class="summary-card">
+          <span class="card-icon">&#128694;</span>
+          <h3>Activity Emissions</h3>
+          <p class="summary-value">
+            {{ formatEmissions(summary.total_activity_emissions) }}
+          </p>
+          <small>Total recorded emissions from activities</small>
+        </article>
 
-      <article class="summary-card">
-        <span class="card-icon">📊</span>
-        <h3>Weekly Emissions</h3>
-        <p class="summary-value">Awaiting data</p>
-        <small>Your estimated weekly footprint</small>
-      </article>
+        <article class="summary-card">
+          <span class="card-icon">&#127760;</span>
+          <h3>Combined Emissions</h3>
+          <p class="summary-value">
+            {{ formatEmissions(summary.total_emissions) }}
+          </p>
+          <small>Total recorded food and activity emissions</small>
+        </article>
+      }
 
     </section>
 
-    <!-- Dashboard panels for emissions visualisation and sustainability advice -->
     <section class="dashboard-grid">
 
       <article class="dashboard-panel emissions-panel">
@@ -80,15 +92,15 @@
             <span class="section-label">YOUR PROGRESS</span>
             <h2>Emissions Overview</h2>
           </div>
-          <span class="panel-icon">📈</span>
+          <span class="panel-icon">&#128200;</span>
         </div>
 
         <div class="chart-placeholder">
-          <span>📊</span>
+          <span>&#128202;</span>
           <h3>Emissions chart coming soon</h3>
           <p>
-            Your emissions trends will appear here once activity
-            data and emission calculations are connected.
+            Your emissions trends will appear here once the
+            daily and weekly Dashboard summaries are connected.
           </p>
         </div>
       </article>
@@ -99,7 +111,7 @@
             <span class="section-label">SMALL CHANGES MATTER</span>
             <h2>Eco Tip</h2>
           </div>
-          <span class="panel-icon">🌿</span>
+          <span class="panel-icon">&#127807;</span>
         </div>
 
         <div class="tip-content">
@@ -113,7 +125,6 @@
 
     </section>
 
-    <!-- Feature cards providing quick access to the main application tools -->
     <section class="features-section">
       <div class="section-heading">
         <div>
@@ -126,31 +137,31 @@
       <div class="features-grid">
 
         <a routerLink="/activity-tracker" class="feature-card">
-          <span class="feature-icon">🚶</span>
+          <span class="feature-icon">&#128694;</span>
           <h3>Activity Tracker</h3>
           <p>Record everyday journeys and monitor your transport activities.</p>
-          <span class="feature-link">Start tracking →</span>
+          <span class="feature-link">Start tracking &#8594;</span>
         </a>
 
         <a routerLink="/weekly-summary" class="feature-card">
-          <span class="feature-icon">📈</span>
+          <span class="feature-icon">&#128200;</span>
           <h3>Weekly Summary</h3>
           <p>Review and understand your carbon footprint over time.</p>
-          <span class="feature-link">View summary →</span>
+          <span class="feature-link">View summary &#8594;</span>
         </a>
 
         <a routerLink="/food-tracker" class="feature-card">
-          <span class="feature-icon">🥗</span>
+          <span class="feature-icon">&#129367;</span>
           <h3>Food Tracker</h3>
           <p>Explore the environmental impact of your food choices.</p>
-          <span class="feature-link">Track food →</span>
+          <span class="feature-link">Track food &#8594;</span>
         </a>
 
         <a routerLink="/eco-assistant" class="feature-card">
-          <span class="feature-icon">💬</span>
+          <span class="feature-icon">&#128172;</span>
           <h3>Eco Assistant</h3>
           <p>Discover practical ideas for reducing your environmental impact.</p>
-          <span class="feature-link">Explore tips →</span>
+          <span class="feature-link">Explore tips &#8594;</span>
         </a>
 
       </div>
@@ -158,7 +169,6 @@
 
   </main>
 
-  <!-- Footer containing the EcoTrack application tagline -->
   <footer class="footer">
     <p>EcoTrack | Track Your Impact. Protect Our Planet.</p>
   </footer>
