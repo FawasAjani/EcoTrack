@@ -16,6 +16,7 @@
 
   <main class="main-content">
 
+    <!-- Welcome section -->
     <section class="welcome-section">
       <div class="welcome-text">
         <span class="welcome-label">YOUR SUSTAINABLE JOURNEY STARTS HERE</span>
@@ -34,6 +35,7 @@
       </div>
     </section>
 
+    <!-- Dashboard heading -->
     <section class="dashboard-heading">
       <div>
         <span class="section-label">YOUR OVERVIEW</span>
@@ -42,6 +44,7 @@
       </div>
     </section>
 
+    <!-- Overall emissions cards -->
     <section class="summary-grid">
 
       @if (isLoading) {
@@ -49,11 +52,15 @@
       } @else if (errorMessage) {
         <div class="dashboard-status error-message">
           <p>{{ errorMessage }}</p>
-          <button type="button" class="retry-button" (click)="loadDashboard()">
+          <button
+            type="button"
+            class="retry-button"
+            (click)="loadDashboard()">
             Try Again
           </button>
         </div>
       } @else if (summary) {
+
         <article class="summary-card">
           <span class="card-icon">&#129367;</span>
           <h3>Food Emissions</h3>
@@ -80,13 +87,16 @@
           </p>
           <small>Total recorded food and activity emissions</small>
         </article>
+
       }
 
     </section>
 
+    <!-- Daily and weekly emissions overview -->
     <section class="dashboard-grid">
 
       <article class="dashboard-panel emissions-panel">
+
         <div class="panel-heading">
           <div>
             <span class="section-label">YOUR PROGRESS</span>
@@ -95,17 +105,122 @@
           <span class="panel-icon">&#128200;</span>
         </div>
 
-        <div class="chart-placeholder">
-          <span>&#128202;</span>
-          <h3>Emissions chart coming soon</h3>
-          <p>
-            Your emissions trends will appear here once the
-            daily and weekly Dashboard summaries are connected.
+        @if (isLoading) {
+          <p class="dashboard-status">Loading emissions summaries...</p>
+        } @else if (errorMessage) {
+          <p class="dashboard-status error-message">
+            Unable to display emissions summaries.
           </p>
-        </div>
+        } @else if (summary) {
+
+          <div class="emissions-summary-content">
+
+            <!-- Today's emissions -->
+            <section class="period-summary">
+              <h3>Today's Emissions</h3>
+
+              <div class="period-cards">
+
+                <div class="period-card">
+                  <span>Food</span>
+                  <strong>
+                    {{ formatEmissions(summary.today_food_emissions) }}
+                  </strong>
+                </div>
+
+                <div class="period-card">
+                  <span>Activities</span>
+                  <strong>
+                    {{ formatEmissions(summary.today_activity_emissions) }}
+                  </strong>
+                </div>
+
+                <div class="period-card">
+                  <span>Combined</span>
+                  <strong>
+                    {{ formatEmissions(summary.today_emissions) }}
+                  </strong>
+                </div>
+
+              </div>
+            </section>
+
+            <!-- Weekly emissions -->
+            <section class="period-summary">
+              <h3>This Week's Emissions</h3>
+
+              <div class="period-cards">
+
+                <div class="period-card">
+                  <span>Food</span>
+                  <strong>
+                    {{ formatEmissions(summary.weekly_food_emissions) }}
+                  </strong>
+                </div>
+
+                <div class="period-card">
+                  <span>Activities</span>
+                  <strong>
+                    {{ formatEmissions(summary.weekly_activity_emissions) }}
+                  </strong>
+                </div>
+
+                <div class="period-card">
+                  <span>Combined</span>
+                  <strong>
+                    {{ formatEmissions(summary.weekly_emissions) }}
+                  </strong>
+                </div>
+
+              </div>
+
+              @if (period) {
+                <p class="period-dates">
+                  {{ period.week_start }} to {{ period.week_end }}
+                </p>
+              }
+            </section>
+
+            <!-- Seven-day breakdown -->
+            <section class="daily-breakdown">
+              <h3>Daily Emissions Breakdown</h3>
+
+              @for (day of weeklyBreakdown; track day.date) {
+
+                <div class="daily-emissions-row">
+
+                  <div class="daily-date">
+                    {{ formatDay(day.date) }}
+                  </div>
+
+                  <div class="daily-values">
+                    <span>
+                      Food: {{ formatEmissions(day.food_emissions) }}
+                    </span>
+
+                    <span>
+                      Activities:
+                      {{ formatEmissions(day.activity_emissions) }}
+                    </span>
+
+                    <strong>
+                      Total: {{ formatEmissions(day.total_emissions) }}
+                    </strong>
+                  </div>
+
+                </div>
+
+              }
+            </section>
+
+          </div>
+        }
+
       </article>
 
+      <!-- Eco Tip -->
       <article class="dashboard-panel tips-panel">
+
         <div class="panel-heading">
           <div>
             <span class="section-label">SMALL CHANGES MATTER</span>
@@ -121,11 +236,14 @@
             instead of using a car. This can help reduce transport emissions.
           </p>
         </div>
+
       </article>
 
     </section>
 
+    <!-- EcoTrack features -->
     <section class="features-section">
+
       <div class="section-heading">
         <div>
           <span class="section-label">EXPLORE YOUR TOOLS</span>
@@ -139,28 +257,36 @@
         <a routerLink="/activity-tracker" class="feature-card">
           <span class="feature-icon">&#128694;</span>
           <h3>Activity Tracker</h3>
-          <p>Record everyday journeys and monitor your transport activities.</p>
+          <p>
+            Record everyday journeys and monitor your transport activities.
+          </p>
           <span class="feature-link">Start tracking &#8594;</span>
         </a>
 
         <a routerLink="/weekly-summary" class="feature-card">
           <span class="feature-icon">&#128200;</span>
           <h3>Weekly Summary</h3>
-          <p>Review and understand your carbon footprint over time.</p>
+          <p>
+            Review and understand your carbon footprint over time.
+          </p>
           <span class="feature-link">View summary &#8594;</span>
         </a>
 
         <a routerLink="/food-tracker" class="feature-card">
           <span class="feature-icon">&#129367;</span>
           <h3>Food Tracker</h3>
-          <p>Explore the environmental impact of your food choices.</p>
+          <p>
+            Explore the environmental impact of your food choices.
+          </p>
           <span class="feature-link">Track food &#8594;</span>
         </a>
 
         <a routerLink="/eco-assistant" class="feature-card">
           <span class="feature-icon">&#128172;</span>
           <h3>Eco Assistant</h3>
-          <p>Discover practical ideas for reducing your environmental impact.</p>
+          <p>
+            Discover practical ideas for reducing your environmental impact.
+          </p>
           <span class="feature-link">Explore tips &#8594;</span>
         </a>
 

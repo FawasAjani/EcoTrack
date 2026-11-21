@@ -1,9 +1,15 @@
 
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ChangeDetectorRef
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   DashboardService,
-  DashboardSummary
+  DashboardSummary,
+  DashboardPeriod,
+  DailyEmissions
 } from '../services/dashboard.service';
 
 @Component({
@@ -15,6 +21,9 @@ import {
 })
 export class Home implements OnInit {
   summary: DashboardSummary | null = null;
+  period: DashboardPeriod | null = null;
+  weeklyBreakdown: DailyEmissions[] = [];
+
   isLoading = true;
   errorMessage = '';
 
@@ -33,7 +42,10 @@ export class Home implements OnInit {
 
     try {
       const data = await this.dashboardService.getDashboardSummary();
+
       this.summary = data.summary;
+      this.period = data.period;
+      this.weeklyBreakdown = data.weekly_breakdown;
     } catch (error) {
       console.error('Error loading Dashboard data:', error);
 
@@ -48,5 +60,15 @@ export class Home implements OnInit {
 
   formatEmissions(value: number): string {
     return `${Number(value).toFixed(2)} kg`;
+  }
+
+  formatDay(date: string): string {
+    return new Date(`${date}T12:00:00`).toLocaleDateString(
+      'en-IE',
+      {
+        weekday: 'short',
+        day: 'numeric'
+      }
+    );
   }
 }
