@@ -2,7 +2,7 @@
 """
 Transport emission factors and assumptions for EcoTrack.
 
-Values are kept centralised so that they can be reviewed and updated
+Values are centralised so they can be reviewed and updated
 without changing the calculation functions.
 """
 
@@ -25,22 +25,9 @@ FUEL_FACTORS = {
 }
 
 # Historical Irish passenger transport factors.
-#
-# Source: CIÉ presentation:
-# "Challenge to Decarbonise Transport and Enable Modal Shift"
-# Presented by Caoimhe Donnelly, Chief Sustainability Officer,
-# September 2023.
-#
-# The presentation's underlying reporting year and detailed
-# calculation methodology were not specified in the material reviewed.
-# These are historical published comparison factors, not verified
-# current emission rates.
-#
-# Values converted from grams to kilograms:
-# 24 g = 0.024 kg
-# 31 g = 0.031 kg
-# 14 g = 0.014 kg
-#
+# Source: CIÉ, Challenge to Decarbonise Transport and Enable
+# Modal Shift, September 2023 presentation.
+# Underlying reporting year and detailed methodology were not specified.
 # Unit: kg CO2e per passenger-kilometre.
 
 PASSENGER_KM_FACTORS = {
@@ -106,9 +93,27 @@ ZERO_OPERATIONAL_EMISSIONS = {
     },
 }
 
-# Temporary assumption for distance-based car estimates.
-# This is a configurable assumption, not a verified fleet average.
+# Distance-based car fuel consumption assumptions.
+# These are representative model assumptions, not measurements
+# for every vehicle.
 CAR_FUEL_CONSUMPTION = {
     "Petrol": 7.0,
     "Diesel": 6.0,
+    "Hybrid": 5.3,
+}
+
+# Electric vehicle energy consumption assumption.
+ELECTRIC_CAR_CONSUMPTION = {
+    "consumption": 16.06,
+    "unit": "kWh/100km",
+    "source": "SEAI fuel comparison methodology",
+    "year": 2025,
+}
+
+# Irish electricity emissions factor.
+ELECTRICITY_EMISSION_FACTOR = {
+    "factor": 0.1978,
+    "unit": "kg CO2/kWh",
+    "source": "SEAI 2025 provisional electricity conversion factor",
+    "year": 2025,
 }

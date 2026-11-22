@@ -30,6 +30,37 @@ def test_diesel_car_activity_emissions():
     assert result["emission_factor"] == 2.682
 
 
+def test_electric_car_activity_emissions():
+    result = calculate_activity_emissions({
+        "category": "Car",
+        "quantity": 100,
+        "unit": "km",
+        "fuel_type": "Electric",
+    })
+
+    assert result["emissions_kg_co2"] == pytest.approx(3.176668)
+    assert result["emissions_kg_co2e"] is None
+    assert result["emission_factor"] == 0.1978
+    assert result["emission_factor_unit"] == "kg CO2/kWh"
+    assert result["emission_factor_source"]
+    assert result["emission_factor_year"] == 2025
+
+
+def test_hybrid_car_activity_emissions():
+    result = calculate_activity_emissions({
+        "category": "Car",
+        "quantity": 100,
+        "unit": "km",
+        "fuel_type": "Hybrid",
+    })
+
+    assert result["emissions_kg_co2"] == pytest.approx(12.2483)
+    assert result["emissions_kg_co2e"] is None
+    assert result["emission_factor"] == 2.311
+    assert result["emission_factor_unit"] == "kg CO2/litre"
+    assert "hybrid" in result["emission_factor_source"].lower()
+
+
 @pytest.mark.parametrize("category", ["Walking", "Cycling"])
 def test_active_transport_has_zero_operational_emissions(category):
     result = calculate_activity_emissions({
@@ -124,4 +155,14 @@ def test_unsupported_transport_category_is_rejected():
             "category": "Airplane",
             "quantity": 100,
             "unit": "km",
+        })
+
+
+def test_unsupported_car_fuel_type_is_rejected():
+    with pytest.raises(ValueError):
+        calculate_activity_emissions({
+            "category": "Car",
+            "quantity": 100,
+            "unit": "km",
+            "fuel_type": "Hydrogen",
         })

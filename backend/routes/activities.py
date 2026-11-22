@@ -163,11 +163,12 @@ def validate_activity_data(data, require_all=True):
     return validated, None
 
 
+
 def calculate_activity_emissions(activity):
     """
     Calculate emissions using backend-controlled factors.
 
-    Car emissions are stored as direct CO2.
+    Car emissions are stored as direct operational CO2.
     Walking and cycling use the operational CO2e boundary.
     Bus and train use service-specific passenger-kilometre factors.
     """
@@ -191,11 +192,7 @@ def calculate_activity_emissions(activity):
             "emissions_kg_co2e": None,
             "emission_factor": result["emission_factor"],
             "emission_factor_unit": result["emission_factor_unit"],
-            "emission_factor_source": (
-                f'{result["emission_factor_source"]}; '
-                f'assumed fuel consumption: '
-                f'{result["fuel_consumption_l_per_100km"]} L/100km'
-            ),
+            "emission_factor_source": result["emission_factor_source"],
             "emission_factor_year": result["emission_factor_year"],
         }
 
@@ -233,6 +230,7 @@ def calculate_activity_emissions(activity):
         }
 
     raise ValueError("Unsupported transport category.")
+
 
 
 def is_valid_uuid(value):

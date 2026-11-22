@@ -2,36 +2,98 @@
 """
 EcoTrack transport emissions calculator.
 
-Car calculations estimate direct CO2 from fuel combustion.
+Car calculations estimate operational CO2 emissions.
+Electric cars use electricity consumption and the Irish grid factor.
+Conventional hybrids use an assumed petrol consumption rate.
 Walking and cycling are assigned zero operational emissions.
-Bus and train calculations use historical Irish
-service-specific passenger-kilometre emission factors.
+Bus and train use historical Irish passenger-kilometre factors.
 """
+
+import math
 
 from emissions.factors import (
     FUEL_FACTORS,
     PASSENGER_KM_FACTORS,
     ZERO_OPERATIONAL_EMISSIONS,
     CAR_FUEL_CONSUMPTION,
+    ELECTRIC_CAR_CONSUMPTION,
+    ELECTRICITY_EMISSION_FACTOR,
 )
 
 
-def calculate_car_emissions(distance_km, fuel_type):
-    """Estimate direct CO2 emissions from a car journey."""
+def validate_distance(distance_km):
+    """Validate a transport distance."""
 
-    if fuel_type not in FUEL_FACTORS:
-        raise ValueError("Unsupported fuel type.")
+    try:
+        distance = float(distance_km)
+    except (TypeError, ValueError):
+        raise ValueError("Distance must be a valid number.")
 
-    if distance_km < 0:
+    if not math.isfinite(distance) or distance < 0:
         raise ValueError("Distance cannot be negative.")
 
+    return distance
+
+
+def calculate_car_emissions(distance_km, fuel_type):
+    """Estimate operational CO2 emissions from a car journey."""
+
+    distance = validate_distance(distance_km)
+
+    # Electric vehicle calculation
+    if fuel_type == "Electric":
+        consumption = ELECTRIC_CAR_CONSUMPTION
+        electricity_factor = ELECTRICITY_EMISSION_FACTOR
+
+        energy_used = (
+            distance * consumption["consumption"] / 100
+        )
+
+        emissions = energy_used * electricity_factor["factor"]
+
+        return {
+            "emissions": round(emissions, 6),
+            "metric": "CO2",
+            "unit": "kg CO2",
+            "emission_factor": electricity_factor["factor"],
+            "emission_factor_unit": electricity_factor["unit"],
+            "emission_factor_source": (
+                f'{electricity_factor["source"]}; '
+                f'assumed vehicle consumption: '
+                f'{consumption["consumption"]} '
+                f'{consumption["unit"]}; '
+                f'{consumption["source"]}'
+            ),
+            "emission_factor_year": electricity_factor["year"],
+            "energy_consumption_kwh_per_100km": (
+                consumption["consumption"]
+            ),
+            "electricity_used_kwh": round(energy_used, 6),
+        }
+
+    # Petrol, Diesel and Hybrid calculation
+    if fuel_type not in CAR_FUEL_CONSUMPTION:
+        raise ValueError("Unsupported fuel type.")
+
     fuel_consumption = CAR_FUEL_CONSUMPTION[fuel_type]
-    fuel_factor = FUEL_FACTORS[fuel_type]
 
-    # Convert litres per 100 km into litres used for this journey.
-    litres_used = distance_km * fuel_consumption / 100
+    # A conventional hybrid uses the petrol combustion factor
+    # with a separate assumed fuel-consumption rate.
+    if fuel_type == "Hybrid":
+        fuel_factor = FUEL_FACTORS["Petrol"]
+    else:
+        fuel_factor = FUEL_FACTORS[fuel_type]
 
+    litres_used = distance * fuel_consumption / 100
     emissions = litres_used * fuel_factor["factor"]
+
+    source = fuel_factor["source"]
+
+    if fuel_type == "Hybrid":
+        source = (
+            f"{source}; conventional hybrid petrol consumption "
+            f"assumption: {fuel_consumption} L/100km"
+        )
 
     return {
         "emissions": round(emissions, 6),
@@ -39,7 +101,7 @@ def calculate_car_emissions(distance_km, fuel_type):
         "unit": "kg CO2",
         "emission_factor": fuel_factor["factor"],
         "emission_factor_unit": fuel_factor["unit"],
-        "emission_factor_source": fuel_factor["source"],
+        "emission_factor_source": source,
         "emission_factor_year": fuel_factor["year"],
         "fuel_consumption_l_per_100km": fuel_consumption,
     }
@@ -56,8 +118,7 @@ def calculate_passenger_transport_emissions(
     Emissions are calculated in kg CO2e using passenger-kilometres.
     """
 
-    if distance_km < 0:
-        raise ValueError("Distance cannot be negative.")
+    distance = validate_distance(distance_km)
 
     if transport_type not in PASSENGER_KM_FACTORS:
         raise ValueError("Unsupported passenger transport type.")
@@ -77,7 +138,7 @@ def calculate_passenger_transport_emissions(
     factor_data = service_factors[transport_service]
     factor = factor_data["factor"]
 
-    emissions = distance_km * factor
+    emissions = distance * factor
 
     return {
         "emissions": round(emissions, 6),
@@ -93,8 +154,7 @@ def calculate_passenger_transport_emissions(
 def calculate_zero_operational_emissions(distance_km, activity_type):
     """Return zero operational emissions for walking or cycling."""
 
-    if distance_km < 0:
-        raise ValueError("Distance cannot be negative.")
+    distance = validate_distance(distance_km)
 
     if activity_type not in ZERO_OPERATIONAL_EMISSIONS:
         raise ValueError("Unsupported activity type.")
