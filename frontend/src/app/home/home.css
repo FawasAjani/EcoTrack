@@ -201,14 +201,14 @@
 .summary-value {
   margin: 0 0 8px;
   color: #197a40;
-  font-size: 22px;
+  font-size: 25px;
   font-weight: 800;
 }
 
 .summary-card small {
   color: #89958d;
   font-size: 12px;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 /* Loading and error messages */
@@ -253,6 +253,7 @@
 }
 
 .dashboard-panel {
+  min-width: 0;
   min-height: 285px;
   padding: 25px;
   border: 1px solid #e4ece5;
@@ -283,18 +284,20 @@
   font-size: 20px;
 }
 
-/* Daily and weekly emissions summaries */
+/* Emissions summaries */
 .emissions-summary-content {
   margin-top: 22px;
 }
 
 .period-summary {
-  margin-bottom: 25px;
+  margin-bottom: 30px;
+  padding-bottom: 23px;
+  border-bottom: 1px solid #edf2ee;
 }
 
 .period-summary h3,
 .daily-breakdown h3 {
-  margin: 0 0 14px;
+  margin: 0 0 16px;
   color: #42624b;
   font-size: 15px;
   font-weight: 700;
@@ -303,15 +306,17 @@
 .period-cards {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
+  gap: 12px;
 }
 
 .period-card {
   min-width: 0;
-  padding: 15px 12px;
+  min-height: 75px;
+  padding: 15px;
   display: flex;
   flex-direction: column;
-  gap: 9px;
+  justify-content: space-between;
+  gap: 12px;
   border: 1px solid #e4ece5;
   border-radius: 10px;
   background: #f9fcf9;
@@ -321,6 +326,7 @@
   color: #78877d;
   font-size: 12px;
   font-weight: 600;
+  line-height: 1.5;
 }
 
 .period-card strong {
@@ -330,10 +336,24 @@
   overflow-wrap: anywhere;
 }
 
+/* Data quality indicators */
+.period-summary:last-child {
+  margin-top: 25px;
+  padding: 18px;
+  border: 1px solid #e8eee8;
+  border-radius: 11px;
+  background: #f8faf8;
+}
+
+.period-summary:last-child .period-card {
+  background: #ffffff;
+}
+
 .period-dates {
-  margin: 12px 0 0;
+  margin: 13px 0 0;
   color: #89958d;
-  font-size: 11px;
+  font-size: 12px;
+  line-height: 1.6;
 }
 
 /* Daily emissions breakdown */
@@ -342,10 +362,10 @@
 }
 
 .daily-emissions-row {
-  padding: 13px 0;
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
+  padding: 17px 0;
+  display: grid;
+  grid-template-columns: 75px minmax(0, 1fr);
+  align-items: start;
   gap: 15px;
   border-bottom: 1px solid #edf2ee;
 }
@@ -355,24 +375,34 @@
 }
 
 .daily-date {
-  min-width: 65px;
+  padding-top: 5px;
   color: #42624b;
   font-size: 13px;
   font-weight: 700;
 }
 
 .daily-values {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 7px 13px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
   color: #78877d;
   font-size: 11px;
-  text-align: right;
+  text-align: left;
+}
+
+.daily-values span,
+.daily-values strong {
+  min-width: 0;
+  padding: 9px 10px;
+  border-radius: 7px;
+  background: #f7faf7;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
 .daily-values strong {
   color: #197a40;
+  background: #eaf5ed;
   font-size: 11px;
 }
 
@@ -504,6 +534,12 @@
 }
 
 /* Responsive layout */
+@media (max-width: 1000px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 900px) {
   .navbar {
     padding: 18px 5%;
@@ -517,10 +553,6 @@
 
   .main-content {
     width: 90%;
-  }
-
-  .dashboard-grid {
-    grid-template-columns: 1fr;
   }
 }
 
@@ -563,22 +595,34 @@
   }
 
   .period-cards {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .period-card {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
+    min-height: 75px;
   }
 
   .daily-emissions-row {
-    flex-direction: column;
-    gap: 8px;
+    grid-template-columns: 1fr;
+    gap: 9px;
   }
 
+  .daily-date {
+    padding-top: 0;
+  }
+}
+
+@media (max-width: 400px) {
+  .period-cards,
   .daily-values {
-    justify-content: flex-start;
-    text-align: left;
+    grid-template-columns: 1fr;
+  }
+
+  .welcome-section {
+    padding: 22px;
+  }
+
+  .dashboard-panel {
+    padding: 16px;
   }
 }

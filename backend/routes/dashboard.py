@@ -47,44 +47,62 @@ def safe_emissions(value):
     """Convert an emissions value into a safe, non-negative number."""
 
     try:
-        result = float(value or 0)
+        result = float(value)
 
         if not math.isfinite(result) or result < 0:
-            return 0.0
+            return None
 
         return result
 
     except (TypeError, ValueError, OverflowError):
-        return 0.0
+        return None
 
 
-def get_activity_emissions(activity):
-    """
-    Use CO2e when available; otherwise use direct CO2.
+def parse_activity_date(value):
+    """Safely parse a date returned by Supabase."""
 
-    The existing activity calculations store these values
-    in separate fields.
-    """
+    if not value:
+        return None
 
-    co2e = activity.get("emissions_kg_co2e")
+    try:
+        if isinstance(value, date):
+            return date.fromisoformat(value.isoformat()[:10])
 
-    if co2e is not None:
-        return safe_emissions(co2e)
+        return date.fromisoformat(str(value))
+    except (ValueError, TypeError):
+        return None
 
-    return safe_emissions(activity.get("emissions_kg_co2"))
+
+def create_daily_summary(day_key):
+    return {
+        "date": day_key,
+        "food_co2e": 0.0,
+        "activity_co2": 0.0,
+        "activity_co2e": 0.0,
+        "electricity_co2": 0.0,
+        "total_co2": 0.0,
+        "total_co2e": 0.0
+    }
+
+
+def round_summary_values(summary):
+    """Round emissions values consistently for API output."""
+
+    for key, value in summary.items():
+        if key != "date" and isinstance(value, (int, float)):
+            summary[key] = round(value, 6)
+
+    return summary
 
 
 @dashboard_bp.route("/summary", methods=["GET"])
 def get_dashboard_summary():
 
-    # Authenticate the user.
     client, user_id, error_response = get_authenticated_client()
 
     if error_response:
         return error_response
 
-    # Use the requested date when supplied.
-    # This allows the frontend to use the user's local date.
     today_value = request.args.get("today")
 
     if today_value:
@@ -106,7 +124,6 @@ def get_dashboard_summary():
     week_end = week_start + timedelta(days=6)
 
     try:
-        # Retrieve all food entries for this user.
         food_entries = get_all_user_records(
             client,
             "food_entries",
@@ -114,124 +131,222 @@ def get_dashboard_summary():
             user_id
         )
 
-        # Retrieve all activity entries for this user.
         activities = get_all_user_records(
             client,
             "activities",
-            "user_id, activity_date, emissions_kg_co2, emissions_kg_co2e",
+            (
+                "user_id, activity_date, "
+                "emissions_kg_co2, emissions_kg_co2e"
+            ),
             user_id
         )
 
-        # Initialise the weekly breakdown.
+        electricity_entries = get_all_user_records(
+            client,
+            "electricity_entries",
+            "user_id, activity_date, emissions_kg_co2",
+            user_id
+        )
+
         weekly_breakdown = {}
 
         current_day = week_start
 
         while current_day <= week_end:
             day_key = current_day.isoformat()
-
-            weekly_breakdown[day_key] = {
-                "date": day_key,
-                "food_emissions": 0.0,
-                "activity_emissions": 0.0,
-                "total_emissions": 0.0
-            }
-
+            weekly_breakdown[day_key] = create_daily_summary(day_key)
             current_day += timedelta(days=1)
 
-        # Calculate food emissions.
-        total_food_emissions = 0.0
-        today_food_emissions = 0.0
-        weekly_food_emissions = 0.0
+        totals = {
+            "food_co2e": 0.0,
+            "activity_co2": 0.0,
+            "activity_co2e": 0.0,
+            "electricity_co2": 0.0
+        }
 
+        today_totals = {
+            "food_co2e": 0.0,
+            "activity_co2": 0.0,
+            "activity_co2e": 0.0,
+            "electricity_co2": 0.0
+        }
+
+        weekly_totals = {
+            "food_co2e": 0.0,
+            "activity_co2": 0.0,
+            "activity_co2e": 0.0,
+            "electricity_co2": 0.0
+        }
+
+        uncalculated_activities = 0
+        ambiguous_activities = 0
+        today_uncalculated_activities = 0
+        weekly_uncalculated_activities = 0
+
+        # Food entries: CO2e.
         for entry in food_entries:
             emissions = safe_emissions(
                 entry.get("emissions_kg_co2e")
             )
 
-            total_food_emissions += emissions
-
-            entry_date = entry.get("activity_date")
-
-            if not entry_date:
+            if emissions is None:
                 continue
 
-            try:
-                parsed_date = date.fromisoformat(entry_date)
-            except (ValueError, TypeError):
-                continue
+            totals["food_co2e"] += emissions
 
-            if parsed_date == today:
-                today_food_emissions += emissions
+            entry_date = parse_activity_date(
+                entry.get("activity_date")
+            )
 
-            if week_start <= parsed_date <= week_end:
-                weekly_food_emissions += emissions
+            if entry_date == today:
+                today_totals["food_co2e"] += emissions
 
-                day_key = parsed_date.isoformat()
-
-                weekly_breakdown[day_key][
-                    "food_emissions"
+            if entry_date and week_start <= entry_date <= week_end:
+                weekly_totals["food_co2e"] += emissions
+                weekly_breakdown[entry_date.isoformat()][
+                    "food_co2e"
                 ] += emissions
 
-        # Calculate activity emissions.
-        total_activity_emissions = 0.0
-        today_activity_emissions = 0.0
-        weekly_activity_emissions = 0.0
-
+        # Activity entries: keep CO2 and CO2e separate.
         for activity in activities:
-            emissions = get_activity_emissions(activity)
+            raw_co2 = activity.get("emissions_kg_co2")
+            raw_co2e = activity.get("emissions_kg_co2e")
 
-            total_activity_emissions += emissions
+            co2 = safe_emissions(raw_co2)
+            co2e = safe_emissions(raw_co2e)
 
-            activity_date = activity.get("activity_date")
+            has_co2 = raw_co2 is not None
+            has_co2e = raw_co2e is not None
 
-            if not activity_date:
+            activity_date = parse_activity_date(
+                activity.get("activity_date")
+            )
+
+            # Both fields populated: ambiguous classification.
+            if has_co2 and has_co2e:
+                ambiguous_activities += 1
                 continue
 
-            try:
-                parsed_date = date.fromisoformat(activity_date)
-            except (ValueError, TypeError):
+            # Neither field populated, or invalid emissions value.
+            if (
+                not has_co2 and not has_co2e
+            ) or (
+                has_co2 and co2 is None
+            ) or (
+                has_co2e and co2e is None
+            ):
+                uncalculated_activities += 1
+
+                if activity_date == today:
+                    today_uncalculated_activities += 1
+
+                if (
+                    activity_date
+                    and week_start <= activity_date <= week_end
+                ):
+                    weekly_uncalculated_activities += 1
+
                 continue
 
-            if parsed_date == today:
-                today_activity_emissions += emissions
+            if has_co2:
+                metric = "activity_co2"
+                emissions = co2
+            else:
+                metric = "activity_co2e"
+                emissions = co2e
 
-            if week_start <= parsed_date <= week_end:
-                weekly_activity_emissions += emissions
+            totals[metric] += emissions
 
-                day_key = parsed_date.isoformat()
+            if activity_date == today:
+                today_totals[metric] += emissions
 
-                weekly_breakdown[day_key][
-                    "activity_emissions"
+            if activity_date and week_start <= activity_date <= week_end:
+                weekly_totals[metric] += emissions
+                weekly_breakdown[activity_date.isoformat()][
+                    metric
                 ] += emissions
 
-        # Calculate the combined totals.
-        total_emissions = (
-            total_food_emissions + total_activity_emissions
-        )
+        # Household electricity entries: direct CO2.
+        for entry in electricity_entries:
+            emissions = safe_emissions(
+                entry.get("emissions_kg_co2")
+            )
 
-        today_emissions = (
-            today_food_emissions + today_activity_emissions
-        )
+            if emissions is None:
+                continue
 
-        weekly_emissions = (
-            weekly_food_emissions + weekly_activity_emissions
-        )
+            totals["electricity_co2"] += emissions
 
-        # Calculate each day's combined emissions.
+            entry_date = parse_activity_date(
+                entry.get("activity_date")
+            )
+
+            if entry_date == today:
+                today_totals["electricity_co2"] += emissions
+
+            if entry_date and week_start <= entry_date <= week_end:
+                weekly_totals["electricity_co2"] += emissions
+                weekly_breakdown[entry_date.isoformat()][
+                    "electricity_co2"
+                ] += emissions
+
+        def calculate_combined_values(values):
+            return {
+                "total_co2": (
+                    values["activity_co2"]
+                    + values["electricity_co2"]
+                ),
+                "total_co2e": (
+                    values["food_co2e"]
+                    + values["activity_co2e"]
+                )
+            }
+
+        combined_totals = calculate_combined_values(totals)
+        today_combined = calculate_combined_values(today_totals)
+        weekly_combined = calculate_combined_values(weekly_totals)
+
+        # Calculate separate daily CO2 and CO2e totals.
         for day in weekly_breakdown.values():
-            day["food_emissions"] = round(
-                day["food_emissions"], 6
+            day["total_co2"] = (
+                day["activity_co2"] + day["electricity_co2"]
             )
 
-            day["activity_emissions"] = round(
-                day["activity_emissions"], 6
+            day["total_co2e"] = (
+                day["food_co2e"] + day["activity_co2e"]
             )
 
-            day["total_emissions"] = round(
-                day["food_emissions"] + day["activity_emissions"],
-                6
-            )
+            round_summary_values(day)
+
+        summary = {
+            "total_food_co2e": totals["food_co2e"],
+            "total_activity_co2": totals["activity_co2"],
+            "total_activity_co2e": totals["activity_co2e"],
+            "total_electricity_co2": totals["electricity_co2"],
+            "total_co2": combined_totals["total_co2"],
+            "total_co2e": combined_totals["total_co2e"],
+
+            "today_food_co2e": today_totals["food_co2e"],
+            "today_activity_co2": today_totals["activity_co2"],
+            "today_activity_co2e": today_totals["activity_co2e"],
+            "today_electricity_co2": today_totals["electricity_co2"],
+            "today_co2": today_combined["total_co2"],
+            "today_co2e": today_combined["total_co2e"],
+
+            "weekly_food_co2e": weekly_totals["food_co2e"],
+            "weekly_activity_co2": weekly_totals["activity_co2"],
+            "weekly_activity_co2e": weekly_totals["activity_co2e"],
+            "weekly_electricity_co2": weekly_totals["electricity_co2"],
+            "weekly_co2": weekly_combined["total_co2"],
+            "weekly_co2e": weekly_combined["total_co2e"],
+
+            "uncalculated_activities": uncalculated_activities,
+            "ambiguous_activities": ambiguous_activities,
+            "today_uncalculated_activities": today_uncalculated_activities,
+            "weekly_uncalculated_activities": weekly_uncalculated_activities
+        }
+
+        round_summary_values(summary)
 
         return jsonify({
             "status": "success",
@@ -240,35 +355,7 @@ def get_dashboard_summary():
                 "week_start": week_start.isoformat(),
                 "week_end": week_end.isoformat()
             },
-            "summary": {
-                "total_food_emissions": round(
-                    total_food_emissions, 6
-                ),
-                "total_activity_emissions": round(
-                    total_activity_emissions, 6
-                ),
-                "total_emissions": round(
-                    total_emissions, 6
-                ),
-                "today_food_emissions": round(
-                    today_food_emissions, 6
-                ),
-                "today_activity_emissions": round(
-                    today_activity_emissions, 6
-                ),
-                "today_emissions": round(
-                    today_emissions, 6
-                ),
-                "weekly_food_emissions": round(
-                    weekly_food_emissions, 6
-                ),
-                "weekly_activity_emissions": round(
-                    weekly_activity_emissions, 6
-                ),
-                "weekly_emissions": round(
-                    weekly_emissions, 6
-                )
-            },
+            "summary": summary,
             "weekly_breakdown": list(
                 weekly_breakdown.values()
             )

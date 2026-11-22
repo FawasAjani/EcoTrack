@@ -5,17 +5,31 @@ import { firstValueFrom } from 'rxjs';
 import { SupabaseService } from '../supabase.service';
 
 export interface DashboardSummary {
-  total_food_emissions: number;
-  total_activity_emissions: number;
-  total_emissions: number;
+  total_food_co2e: number;
+  total_activity_co2: number;
+  total_activity_co2e: number;
+  total_electricity_co2: number;
+  total_co2: number;
+  total_co2e: number;
 
-  today_food_emissions: number;
-  today_activity_emissions: number;
-  today_emissions: number;
+  today_food_co2e: number;
+  today_activity_co2: number;
+  today_activity_co2e: number;
+  today_electricity_co2: number;
+  today_co2: number;
+  today_co2e: number;
 
-  weekly_food_emissions: number;
-  weekly_activity_emissions: number;
-  weekly_emissions: number;
+  weekly_food_co2e: number;
+  weekly_activity_co2: number;
+  weekly_activity_co2e: number;
+  weekly_electricity_co2: number;
+  weekly_co2: number;
+  weekly_co2e: number;
+
+  uncalculated_activities: number;
+  ambiguous_activities: number;
+  today_uncalculated_activities: number;
+  weekly_uncalculated_activities: number;
 }
 
 export interface DashboardPeriod {
@@ -26,9 +40,12 @@ export interface DashboardPeriod {
 
 export interface DailyEmissions {
   date: string;
-  food_emissions: number;
-  activity_emissions: number;
-  total_emissions: number;
+  food_co2e: number;
+  activity_co2: number;
+  activity_co2e: number;
+  electricity_co2: number;
+  total_co2: number;
+  total_co2e: number;
 }
 
 interface DashboardApiResponse {

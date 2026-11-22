@@ -18,48 +18,48 @@ def client():
 
 @pytest.fixture
 def authenticated_user():
-    return (
-        MagicMock(),
-        "test-user-123",
-        None
-    )
+    return MagicMock(), "test-user-123", None
 
 
 def configure_dashboard_queries(
     mock_client,
     food_entries,
-    activities
+    activities,
+    electricity_entries
 ):
-    """Configure separate Supabase queries for food and activities."""
+    """Configure separate queries for all Dashboard data sources."""
 
-    food_query = MagicMock()
-    activity_query = MagicMock()
+    records_by_table = {
+        "food_entries": food_entries,
+        "activities": activities,
+        "electricity_entries": electricity_entries
+    }
+
+    queries = {}
 
     def table_query(table_name):
-        if table_name == "food_entries":
-            return food_query
+        if table_name not in records_by_table:
+            raise AssertionError(f"Unexpected table: {table_name}")
 
-        if table_name == "activities":
-            return activity_query
+        if table_name not in queries:
+            query = MagicMock()
+            query.select.return_value = query
+            query.eq.return_value = query
+            query.order.return_value = query
+            query.range.return_value = query
+            query.execute.return_value = SimpleNamespace(
+                data=records_by_table[table_name]
+            )
+            queries[table_name] = query
 
-        raise AssertionError(f"Unexpected table: {table_name}")
+        return queries[table_name]
 
     mock_client.table.side_effect = table_query
 
-    for query, records in [
-        (food_query, food_entries),
-        (activity_query, activities)
-    ]:
-        query.select.return_value = query
-        query.eq.return_value = query
-        query.order.return_value = query
-        query.range.return_value = query
-        query.execute.return_value = SimpleNamespace(data=records)
-
-    return food_query, activity_query
+    return queries
 
 
-def test_dashboard_summary_calculates_emissions(
+def test_dashboard_summary_calculates_separate_emissions(
     client,
     authenticated_user
 ):
@@ -108,10 +108,29 @@ def test_dashboard_summary_calculates_emissions(
         }
     ]
 
-    food_query, activity_query = configure_dashboard_queries(
+    electricity_entries = [
+        {
+            "user_id": "test-user-123",
+            "activity_date": today.isoformat(),
+            "emissions_kg_co2": 6.0
+        },
+        {
+            "user_id": "test-user-123",
+            "activity_date": yesterday.isoformat(),
+            "emissions_kg_co2": 2.0
+        },
+        {
+            "user_id": "test-user-123",
+            "activity_date": previous_week.isoformat(),
+            "emissions_kg_co2": 8.0
+        }
+    ]
+
+    queries = configure_dashboard_queries(
         mock_client,
         food_entries,
-        activities
+        activities,
+        electricity_entries
     )
 
     with patch(
@@ -129,17 +148,32 @@ def test_dashboard_summary_calculates_emissions(
 
     assert result["status"] == "success"
 
-    assert summary["total_food_emissions"] == 13.0
-    assert summary["total_activity_emissions"] == 12.0
-    assert summary["total_emissions"] == 25.0
+    # All-time totals.
+    assert summary["total_food_co2e"] == 13.0
+    assert summary["total_activity_co2"] == 3.0
+    assert summary["total_activity_co2e"] == 9.0
+    assert summary["total_electricity_co2"] == 16.0
 
-    assert summary["today_food_emissions"] == 2.0
-    assert summary["today_activity_emissions"] == 3.0
-    assert summary["today_emissions"] == 5.0
+    assert summary["total_co2"] == 19.0
+    assert summary["total_co2e"] == 22.0
 
-    assert summary["weekly_food_emissions"] == 3.0
-    assert summary["weekly_activity_emissions"] == 7.0
-    assert summary["weekly_emissions"] == 10.0
+    # Today's totals.
+    assert summary["today_food_co2e"] == 2.0
+    assert summary["today_activity_co2"] == 3.0
+    assert summary["today_activity_co2e"] == 0.0
+    assert summary["today_electricity_co2"] == 6.0
+
+    assert summary["today_co2"] == 9.0
+    assert summary["today_co2e"] == 2.0
+
+    # Weekly totals.
+    assert summary["weekly_food_co2e"] == 3.0
+    assert summary["weekly_activity_co2"] == 3.0
+    assert summary["weekly_activity_co2e"] == 4.0
+    assert summary["weekly_electricity_co2"] == 8.0
+
+    assert summary["weekly_co2"] == 11.0
+    assert summary["weekly_co2e"] == 7.0
 
     assert len(result["weekly_breakdown"]) == 7
 
@@ -148,22 +182,83 @@ def test_dashboard_summary_calculates_emissions(
         if day["date"] == "2026-11-19"
     )
 
-    assert today_breakdown["food_emissions"] == 2.0
-    assert today_breakdown["activity_emissions"] == 3.0
-    assert today_breakdown["total_emissions"] == 5.0
+    assert today_breakdown["food_co2e"] == 2.0
+    assert today_breakdown["activity_co2"] == 3.0
+    assert today_breakdown["activity_co2e"] == 0.0
+    assert today_breakdown["electricity_co2"] == 6.0
+    assert today_breakdown["total_co2"] == 9.0
+    assert today_breakdown["total_co2e"] == 2.0
 
-    food_query.eq.assert_called_once_with(
-        "user_id",
-        "test-user-123"
+    # Every query must be restricted to the authenticated user.
+    for query in queries.values():
+        query.eq.assert_called_once_with(
+            "user_id",
+            "test-user-123"
+        )
+        query.order.assert_called_once_with("id")
+
+
+def test_dashboard_counts_uncalculated_activities(
+    client,
+    authenticated_user
+):
+    mock_client = authenticated_user[0]
+
+    today = "2026-11-19"
+
+    activities = [
+        {
+            "user_id": "test-user-123",
+            "activity_date": today,
+            "emissions_kg_co2": None,
+            "emissions_kg_co2e": None
+        },
+        {
+            "user_id": "test-user-123",
+            "activity_date": today,
+            "emissions_kg_co2": 3.0,
+            "emissions_kg_co2e": 4.0
+        },
+        {
+            "user_id": "test-user-123",
+            "activity_date": today,
+            "emissions_kg_co2": 2.0,
+            "emissions_kg_co2e": None
+        },
+        {
+            "user_id": "test-user-123",
+            "activity_date": today,
+            "emissions_kg_co2": None,
+            "emissions_kg_co2e": 1.5
+        }
+    ]
+
+    configure_dashboard_queries(
+        mock_client,
+        [],
+        activities,
+        []
     )
 
-    activity_query.eq.assert_called_once_with(
-        "user_id",
-        "test-user-123"
-    )
+    with patch(
+        "routes.dashboard.get_authenticated_client",
+        return_value=authenticated_user
+    ):
+        response = client.get(
+            f"/api/dashboard/summary?today={today}"
+        )
 
-    food_query.order.assert_called_once_with("id")
-    activity_query.order.assert_called_once_with("id")
+    assert response.status_code == 200
+
+    summary = response.get_json()["summary"]
+
+    assert summary["uncalculated_activities"] == 1
+    assert summary["ambiguous_activities"] == 1
+    assert summary["today_uncalculated_activities"] == 1
+
+    # Only unambiguous, valid records contribute to totals.
+    assert summary["total_activity_co2"] == 2.0
+    assert summary["total_activity_co2e"] == 1.5
 
 
 def test_dashboard_summary_returns_zero_for_empty_history(
@@ -174,6 +269,7 @@ def test_dashboard_summary_returns_zero_for_empty_history(
 
     configure_dashboard_queries(
         mock_client,
+        [],
         [],
         []
     )
@@ -189,13 +285,12 @@ def test_dashboard_summary_returns_zero_for_empty_history(
     assert response.status_code == 200
 
     result = response.get_json()
+    summary = result["summary"]
 
     assert result["status"] == "success"
-    assert result["summary"]["total_food_emissions"] == 0
-    assert result["summary"]["total_activity_emissions"] == 0
-    assert result["summary"]["total_emissions"] == 0
-    assert result["summary"]["today_emissions"] == 0
-    assert result["summary"]["weekly_emissions"] == 0
+
+    for key, value in summary.items():
+        assert value == 0
 
 
 def test_dashboard_summary_rejects_unauthenticated_request(
@@ -251,19 +346,8 @@ def test_dashboard_summary_handles_database_error(
     mock_client = authenticated_user[0]
 
     food_query = MagicMock()
-    activity_query = MagicMock()
 
-    def table_query(table_name):
-        if table_name == "food_entries":
-            return food_query
-
-        if table_name == "activities":
-            return activity_query
-
-        raise AssertionError(f"Unexpected table: {table_name}")
-
-    mock_client.table.side_effect = table_query
-
+    mock_client.table.return_value = food_query
     food_query.select.return_value = food_query
     food_query.eq.return_value = food_query
     food_query.order.return_value = food_query
@@ -295,20 +379,24 @@ def test_dashboard_summary_retrieves_records_in_batches(
 
     food_query = MagicMock()
     activity_query = MagicMock()
+    electricity_query = MagicMock()
 
-    mock_client.table.side_effect = lambda table_name: (
-        food_query if table_name == "food_entries"
-        else activity_query
-    )
+    mock_client.table.side_effect = lambda table_name: {
+        "food_entries": food_query,
+        "activities": activity_query,
+        "electricity_entries": electricity_query
+    }[table_name]
 
-    for query in [food_query, activity_query]:
+    for query in [
+        food_query,
+        activity_query,
+        electricity_query
+    ]:
         query.select.return_value = query
         query.eq.return_value = query
         query.order.return_value = query
         query.range.return_value = query
 
-    # Return 500 records in the first food batch and one
-    # additional record in the second batch.
     first_batch = [
         {
             "user_id": "test-user-123",
@@ -332,6 +420,7 @@ def test_dashboard_summary_retrieves_records_in_batches(
     ]
 
     activity_query.execute.return_value = SimpleNamespace(data=[])
+    electricity_query.execute.return_value = SimpleNamespace(data=[])
 
     with patch(
         "routes.dashboard.get_authenticated_client",
@@ -345,7 +434,7 @@ def test_dashboard_summary_retrieves_records_in_batches(
 
     result = response.get_json()
 
-    assert result["summary"]["total_food_emissions"] == 6.0
+    assert result["summary"]["total_food_co2e"] == 6.0
 
     assert food_query.range.call_count == 2
     food_query.range.assert_any_call(0, 499)

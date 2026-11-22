@@ -62,37 +62,43 @@
       } @else if (summary) {
 
         <article class="summary-card">
-          <span class="card-icon">&#129367;</span>
-          <h3>Food Emissions</h3>
+          <span class="card-icon">&#127807;</span>
+          <h3>Total CO₂ Emissions</h3>
           <p class="summary-value">
-            {{ formatEmissions(summary.total_food_emissions) }}
+            {{ formatEmissions(summary.total_co2) }}
           </p>
-          <small>Total recorded emissions from food entries</small>
+          <small>
+            Activity transport and household electricity
+          </small>
+        </article>
+
+        <article class="summary-card">
+          <span class="card-icon">&#129367;</span>
+          <h3>Total CO₂e Emissions</h3>
+          <p class="summary-value">
+            {{ formatEmissions(summary.total_co2e) }}
+          </p>
+          <small>
+            Food and activities recorded as CO₂e
+          </small>
         </article>
 
         <article class="summary-card">
           <span class="card-icon">&#128694;</span>
-          <h3>Activity Emissions</h3>
+          <h3>Uncalculated Activities</h3>
           <p class="summary-value">
-            {{ formatEmissions(summary.total_activity_emissions) }}
+            {{ summary.uncalculated_activities }}
           </p>
-          <small>Total recorded emissions from activities</small>
-        </article>
-
-        <article class="summary-card">
-          <span class="card-icon">&#127760;</span>
-          <h3>Combined Emissions</h3>
-          <p class="summary-value">
-            {{ formatEmissions(summary.total_emissions) }}
-          </p>
-          <small>Total recorded food and activity emissions</small>
+          <small>
+            Activity entries excluded from emissions totals
+          </small>
         </article>
 
       }
 
     </section>
 
-    <!-- Daily and weekly emissions overview -->
+    <!-- Emissions overview -->
     <section class="dashboard-grid">
 
       <article class="dashboard-panel emissions-panel">
@@ -122,27 +128,53 @@
               <div class="period-cards">
 
                 <div class="period-card">
-                  <span>Food</span>
+                  <span>Activity CO₂</span>
                   <strong>
-                    {{ formatEmissions(summary.today_food_emissions) }}
+                    {{ formatEmissions(summary.today_activity_co2) }}
                   </strong>
                 </div>
 
                 <div class="period-card">
-                  <span>Activities</span>
+                  <span>Electricity CO₂</span>
                   <strong>
-                    {{ formatEmissions(summary.today_activity_emissions) }}
+                    {{ formatEmissions(summary.today_electricity_co2) }}
                   </strong>
                 </div>
 
                 <div class="period-card">
-                  <span>Combined</span>
+                  <span>Total CO₂</span>
                   <strong>
-                    {{ formatEmissions(summary.today_emissions) }}
+                    {{ formatEmissions(summary.today_co2) }}
+                  </strong>
+                </div>
+
+                <div class="period-card">
+                  <span>Food CO₂e</span>
+                  <strong>
+                    {{ formatEmissions(summary.today_food_co2e) }}
+                  </strong>
+                </div>
+
+                <div class="period-card">
+                  <span>Activity CO₂e</span>
+                  <strong>
+                    {{ formatEmissions(summary.today_activity_co2e) }}
+                  </strong>
+                </div>
+
+                <div class="period-card">
+                  <span>Total CO₂e</span>
+                  <strong>
+                    {{ formatEmissions(summary.today_co2e) }}
                   </strong>
                 </div>
 
               </div>
+
+              <p class="period-dates">
+                Uncalculated activities today:
+                {{ summary.today_uncalculated_activities }}
+              </p>
             </section>
 
             <!-- Weekly emissions -->
@@ -152,27 +184,53 @@
               <div class="period-cards">
 
                 <div class="period-card">
-                  <span>Food</span>
+                  <span>Activity CO₂</span>
                   <strong>
-                    {{ formatEmissions(summary.weekly_food_emissions) }}
+                    {{ formatEmissions(summary.weekly_activity_co2) }}
                   </strong>
                 </div>
 
                 <div class="period-card">
-                  <span>Activities</span>
+                  <span>Electricity CO₂</span>
                   <strong>
-                    {{ formatEmissions(summary.weekly_activity_emissions) }}
+                    {{ formatEmissions(summary.weekly_electricity_co2) }}
                   </strong>
                 </div>
 
                 <div class="period-card">
-                  <span>Combined</span>
+                  <span>Total CO₂</span>
                   <strong>
-                    {{ formatEmissions(summary.weekly_emissions) }}
+                    {{ formatEmissions(summary.weekly_co2) }}
+                  </strong>
+                </div>
+
+                <div class="period-card">
+                  <span>Food CO₂e</span>
+                  <strong>
+                    {{ formatEmissions(summary.weekly_food_co2e) }}
+                  </strong>
+                </div>
+
+                <div class="period-card">
+                  <span>Activity CO₂e</span>
+                  <strong>
+                    {{ formatEmissions(summary.weekly_activity_co2e) }}
+                  </strong>
+                </div>
+
+                <div class="period-card">
+                  <span>Total CO₂e</span>
+                  <strong>
+                    {{ formatEmissions(summary.weekly_co2e) }}
                   </strong>
                 </div>
 
               </div>
+
+              <p class="period-dates">
+                Uncalculated activities this week:
+                {{ summary.weekly_uncalculated_activities }}
+              </p>
 
               @if (period) {
                 <p class="period-dates">
@@ -181,7 +239,7 @@
               }
             </section>
 
-            <!-- Seven-day breakdown -->
+            <!-- Daily breakdown -->
             <section class="daily-breakdown">
               <h3>Daily Emissions Breakdown</h3>
 
@@ -194,23 +252,71 @@
                   </div>
 
                   <div class="daily-values">
+
                     <span>
-                      Food: {{ formatEmissions(day.food_emissions) }}
+                      Food CO₂e:
+                      {{ formatEmissions(day.food_co2e) }}
                     </span>
 
                     <span>
-                      Activities:
-                      {{ formatEmissions(day.activity_emissions) }}
+                      Activity CO₂:
+                      {{ formatEmissions(day.activity_co2) }}
+                    </span>
+
+                    <span>
+                      Activity CO₂e:
+                      {{ formatEmissions(day.activity_co2e) }}
+                    </span>
+
+                    <span>
+                      Electricity CO₂:
+                      {{ formatEmissions(day.electricity_co2) }}
                     </span>
 
                     <strong>
-                      Total: {{ formatEmissions(day.total_emissions) }}
+                      Total CO₂:
+                      {{ formatEmissions(day.total_co2) }}
                     </strong>
+
+                    <strong>
+                      Total CO₂e:
+                      {{ formatEmissions(day.total_co2e) }}
+                    </strong>
+
                   </div>
 
                 </div>
 
               }
+            </section>
+
+            <!-- Data quality information -->
+            <section class="period-summary">
+              <h3>Activity Data Quality</h3>
+
+              <div class="period-cards">
+
+                <div class="period-card">
+                  <span>Uncalculated Activities</span>
+                  <strong>
+                    {{ summary.uncalculated_activities }}
+                  </strong>
+                </div>
+
+                <div class="period-card">
+                  <span>Ambiguous Activities</span>
+                  <strong>
+                    {{ summary.ambiguous_activities }}
+                  </strong>
+                </div>
+
+              </div>
+
+              <p class="period-dates">
+                Uncalculated and ambiguous entries are excluded from
+                emissions totals until their emissions data can be
+                reliably established.
+              </p>
             </section>
 
           </div>
