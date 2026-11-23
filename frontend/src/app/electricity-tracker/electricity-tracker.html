@@ -1,0 +1,220 @@
+
+<div class="electricity-page">
+
+  <nav class="navbar">
+    <a routerLink="/home" class="brand">EcoTrack</a>
+
+    <div class="nav-links">
+      <a routerLink="/home">Dashboard</a>
+      <a routerLink="/activity-tracker">Activity Tracker</a>
+      <a routerLink="/food-tracker">Food Tracker</a>
+      <a routerLink="/electricity-tracker" class="active">Electricity Tracker</a>
+      <a routerLink="/weekly-summary">Weekly Summary</a>
+    </div>
+  </nav>
+
+  <main class="container">
+
+    <header class="page-header">
+      <p class="eyebrow">ENERGY TRACKING</p>
+      <h1>Electricity Tracker</h1>
+      <p>
+        Record your household electricity consumption and understand
+        its contribution to your carbon footprint.
+      </p>
+    </header>
+
+    <section class="summary-grid">
+
+      <article class="summary-card">
+        <span class="summary-label">Total Consumption</span>
+        <strong>{{ totalElectricityKwh | number:'1.2-2' }}</strong>
+        <span class="summary-unit">kWh recorded</span>
+      </article>
+
+      <article class="summary-card">
+        <span class="summary-label">Total Emissions</span>
+        <strong>{{ totalElectricityEmissions | number:'1.3-3' }}</strong>
+        <span class="summary-unit">kg CO₂</span>
+      </article>
+
+      <article class="summary-card">
+        <span class="summary-label">Recorded Entries</span>
+        <strong>{{ totalEntries }}</strong>
+        <span class="summary-unit">electricity records</span>
+      </article>
+
+    </section>
+
+    <section class="tracker-card">
+
+      <div class="section-heading">
+        <h2>Record Electricity Consumption</h2>
+        <p>Enter the electricity you consumed in kilowatt-hours (kWh).</p>
+      </div>
+
+      <form (ngSubmit)="saveElectricityEntry()">
+
+        <div class="form-group">
+          <label for="quantityKwh">Electricity Consumption (kWh)</label>
+
+          <input
+            id="quantityKwh"
+            type="number"
+            name="quantityKwh"
+            [(ngModel)]="quantityKwh"
+            min="0.01"
+            step="0.01"
+            placeholder="e.g. 250"
+            required
+          />
+
+          <small>
+            Enter the electricity consumption shown on your meter or bill.
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label for="activityDate">Consumption Date</label>
+
+          <input
+            id="activityDate"
+            type="date"
+            name="activityDate"
+            [(ngModel)]="activityDate"
+            required
+          />
+        </div>
+
+        <div class="factor-note">
+          <strong>Emission calculation</strong>
+          <p>
+            EcoTrack uses the SEAI 2025 provisional Irish electricity
+            factor of 0.1978 kg CO₂ per kWh.
+          </p>
+          <p>
+            Your emissions are calculated automatically by the backend.
+          </p>
+        </div>
+
+        <div *ngIf="errorMessage" class="message error-message">
+          {{ errorMessage }}
+        </div>
+
+        <div *ngIf="successMessage" class="message success-message">
+          {{ successMessage }}
+        </div>
+
+        <button
+          type="submit"
+          class="save-button"
+          [disabled]="isSaving"
+        >
+          {{ isSaving ? 'Saving...' : 'Save Electricity Entry' }}
+        </button>
+
+      </form>
+
+      <div *ngIf="savedEntry" class="saved-result">
+        <h3>Latest Calculation</h3>
+
+        <p>
+          Consumption:
+          <strong>{{ savedEntry.quantity_kwh | number:'1.2-2' }} kWh</strong>
+        </p>
+
+        <p>
+          Estimated emissions:
+          <strong>{{ savedEntry.emissions_kg_co2 | number:'1.3-3' }} kg CO₂</strong>
+        </p>
+
+        <p class="source-text">
+          Source: {{ savedEntry.dataset_name_snapshot }},
+          {{ savedEntry.dataset_version_snapshot }}
+        </p>
+      </div>
+
+    </section>
+
+    <section class="history-card">
+
+      <div class="section-heading">
+        <h2>Electricity History</h2>
+        <p>Your previously recorded electricity consumption.</p>
+      </div>
+
+      <div *ngIf="isLoadingHistory" class="empty-message">
+        Loading electricity history...
+      </div>
+
+      <div *ngIf="historyErrorMessage" class="message error-message">
+        {{ historyErrorMessage }}
+      </div>
+
+      <div
+        *ngIf="!isLoadingHistory && !historyErrorMessage && electricityEntries.length === 0"
+        class="empty-message"
+      >
+        <p>No electricity entries recorded yet.</p>
+        <p>Add your first electricity consumption entry above.</p>
+      </div>
+
+      <div
+        *ngIf="!isLoadingHistory && electricityEntries.length > 0"
+        class="table-wrapper"
+      >
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Consumption</th>
+              <th>Emissions</th>
+              <th>Emission Factor</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let entry of electricityEntries">
+              <td>{{ entry.activity_date | date:'dd MMM yyyy' }}</td>
+
+              <td>
+                {{ entry.quantity_kwh | number:'1.2-2' }} kWh
+              </td>
+
+              <td>
+                {{ entry.emissions_kg_co2 | number:'1.3-3' }} kg CO₂
+              </td>
+
+              <td>
+                {{ entry.emission_factor_snapshot }}
+                {{ entry.emission_factor_unit }}
+              </td>
+
+              <td>
+                <button
+                  type="button"
+                  class="delete-button"
+                  [disabled]="deletingEntryId === entry.id"
+                  (click)="deleteElectricityEntry(entry)"
+                >
+                  {{ deletingEntryId === entry.id ? 'Deleting...' : 'Delete' }}
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </section>
+
+    <footer class="page-footer">
+      <p>
+        Emission calculations use the SEAI 2025 provisional Irish
+        electricity conversion factor.
+      </p>
+    </footer>
+
+  </main>
+
+</div>

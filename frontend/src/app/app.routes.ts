@@ -1,4 +1,4 @@
-import { FoodTracker } from './food-tracker/food-tracker';
+
 import { Routes } from '@angular/router';
 
 import { Login } from './login/login';
@@ -7,6 +7,8 @@ import { ResetPassword } from './reset-password/reset-password';
 import { Home } from './home/home';
 import { ActivityTracker } from './activity-tracker/activity-tracker';
 import { WeeklySummary } from './weekly-summary/weekly-summary';
+import { FoodTracker } from './food-tracker/food-tracker';
+import { ElectricityTracker } from './electricity-tracker/electricity-tracker';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
@@ -16,5 +18,6 @@ export const routes: Routes = [
   { path: 'activity-tracker', component: ActivityTracker },
   { path: 'weekly-summary', component: WeeklySummary },
   { path: 'food-tracker', component: FoodTracker },
+  { path: 'electricity-tracker', component: ElectricityTracker },
   { path: '', redirectTo: 'login', pathMatch: 'full' }
 ];
