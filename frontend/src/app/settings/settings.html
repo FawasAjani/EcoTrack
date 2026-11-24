@@ -12,17 +12,14 @@
     </a>
   </header>
 
-  <!-- Loading message -->
   <div *ngIf="loading" class="settings-message">
     Loading your account details...
   </div>
 
-  <!-- Error message -->
   <div *ngIf="errorMessage" class="message error-message" role="alert">
     {{ errorMessage }}
   </div>
 
-  <!-- Success message -->
   <div *ngIf="successMessage" class="message success-message" role="status">
     {{ successMessage }}
   </div>
@@ -67,39 +64,30 @@
       </form>
     </section>
 
+    <!-- Preferences -->
     <section class="settings-section">
-  <h2>Preferences</h2>
-  <p>Customise your EcoTrack experience.</p>
+      <h2>Preferences</h2>
+      <p>Customise your EcoTrack experience.</p>
 
-  <div class="form-group">
-    <label for="themePreference">Appearance</label>
+      <div class="form-group">
+        <label for="themePreference">Appearance</label>
 
-    <select
-      id="themePreference"
-      name="themePreference"
-      [(ngModel)]="themePreference"
-      (ngModelChange)="onThemeChange($event)"
-    >
-      <option value="light">Light</option>
-      <option value="dark">Dark</option>
-      <option value="system">System default</option>
-    </select>
+        <select
+          id="themePreference"
+          name="themePreference"
+          [(ngModel)]="themePreference"
+          (ngModelChange)="onThemeChange($event)"
+        >
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+          <option value="system">System default</option>
+        </select>
 
-    <small>Choose how EcoTrack looks on this device.</small>
-  </div>
-</section>
-
-    <!-- Security -->
-    <section class="settings-section">
-      <h2>Security</h2>
-      <p>Manage your password and account security.</p>
-
-      <div class="settings-placeholder">
-        Password management will be available here.
+        <small>Choose how EcoTrack looks on this device.</small>
       </div>
     </section>
 
-    <!-- Account Logout -->
+    <!-- Log Out -->
     <section class="settings-section logout-section">
       <h2>Log Out</h2>
       <p>
@@ -115,3 +103,7 @@
         {{ loggingOut ? 'Logging out...' : 'Log Out' }}
       </button>
     </section>
+
+  </ng-container>
+
+</div>

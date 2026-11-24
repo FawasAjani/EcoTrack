@@ -209,3 +209,32 @@
 .logout-button:hover:not(:disabled) {
   background: #922d2d !important;
 }
+
+/* Password fields */
+.password-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 550px;
+}
+
+.password-input-wrapper input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  max-width: none;
+}
+
+.settings-section .password-toggle {
+  flex-shrink: 0;
+  padding: 10px 13px;
+  border: 1px solid #dce7de;
+  background: #f1f5f2;
+  color: #197a40;
+}
+
+.settings-section .password-toggle:hover:not(:disabled) {
+  background: #e3eee5;
+  color: #125e30;
+  transform: none;
+}
