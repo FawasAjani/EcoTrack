@@ -59,6 +59,35 @@ export class SupabaseService {
     return data.session?.access_token ?? null;
   }
 
+  // Retrieve the current authenticated user's profile.
+  async getUserProfile() {
+    const { data, error } = await this.supabase.auth.getUser();
+
+    if (error) {
+      return { user: null, error };
+    }
+
+    return {
+      user: data.user
+        ? {
+            id: data.user.id,
+            email: data.user.email ?? '',
+            fullName: data.user.user_metadata?.['full_name'] ?? ''
+          }
+        : null,
+      error: null
+    };
+  }
+
+  // Update the current user's profile name.
+  async updateProfile(fullName: string) {
+    const { data, error } = await this.supabase.auth.updateUser({
+      data: { full_name: fullName.trim() }
+    });
+
+    return { data, error };
+  }
+
   // Sign out the current user.
   async signOut() {
     const { error } = await this.supabase.auth.signOut();

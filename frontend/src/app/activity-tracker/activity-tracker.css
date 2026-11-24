@@ -297,3 +297,267 @@ footer {
     flex-wrap: wrap;
   }
 }
+
+
+/* =================================
+   DARK THEME - ACTIVITY TRACKER
+================================= */
+
+html[data-theme='dark'] app-activity-tracker {
+  background: #142019;
+  color: #edf5ef;
+}
+
+/* Navigation */
+html[data-theme='dark'] app-activity-tracker .navbar {
+  background: #1e2d23;
+  border-bottom-color: #405747;
+}
+
+html[data-theme='dark'] app-activity-tracker .brand {
+  color: #83d49b;
+}
+
+html[data-theme='dark'] app-activity-tracker .nav-links a {
+  color: #b4c4b8;
+}
+
+html[data-theme='dark'] app-activity-tracker .nav-links a:hover {
+  color: #83d49b;
+}
+
+/* Main heading */
+html[data-theme='dark'] app-activity-tracker .tracker-header h1 {
+  color: #a5ddb5;
+}
+
+html[data-theme='dark'] app-activity-tracker .tracker-header p {
+  color: #b4c4b8;
+}
+
+/* Form and recorded activities */
+html[data-theme='dark'] app-activity-tracker .activity-form-section,
+html[data-theme='dark'] app-activity-tracker .recorded-activities {
+  background: #1e2d23;
+  border-color: #405747;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+}
+
+html[data-theme='dark'] app-activity-tracker .activity-form-section h2,
+html[data-theme='dark'] app-activity-tracker .recorded-activities h2 {
+  color: #d6eadb;
+}
+
+/* Form fields */
+html[data-theme='dark'] app-activity-tracker .form-group label {
+  color: #c4d5c8;
+}
+
+html[data-theme='dark'] app-activity-tracker .form-group input,
+html[data-theme='dark'] app-activity-tracker .form-group select,
+html[data-theme='dark'] app-activity-tracker .form-group textarea {
+  border-color: #405747;
+  background: #26382c;
+  color: #edf5ef;
+}
+
+html[data-theme='dark'] app-activity-tracker .form-group input:focus,
+html[data-theme='dark'] app-activity-tracker .form-group select:focus,
+html[data-theme='dark'] app-activity-tracker .form-group textarea:focus {
+  border-color: #65b982;
+  background: #26382c;
+  box-shadow: 0 0 0 3px rgba(101, 185, 130, 0.15);
+}
+
+html[data-theme='dark'] app-activity-tracker .form-group input::placeholder,
+html[data-theme='dark'] app-activity-tracker .form-group textarea::placeholder {
+  color: #91a697;
+}
+
+/* Add Activity button */
+html[data-theme='dark'] app-activity-tracker .activity-form-section button[type='submit'] {
+  background: #398b57;
+}
+
+html[data-theme='dark'] app-activity-tracker .activity-form-section button[type='submit']:hover:not(:disabled) {
+  background: #2f7549;
+}
+
+html[data-theme='dark'] app-activity-tracker .activity-form-section button[type='submit']:disabled {
+  background: #526f5b;
+}
+
+/* Empty state */
+html[data-theme='dark'] app-activity-tracker .recorded-activities > p {
+  border-color: #405747;
+  background: #26382c;
+  color: #b4c4b8;
+}
+
+/* Activity cards */
+html[data-theme='dark'] app-activity-tracker .activity-card {
+  border-color: #405747;
+  border-left-color: #65b982;
+  background: #26382c;
+}
+
+html[data-theme='dark'] app-activity-tracker .activity-card:hover {
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.2);
+}
+
+html[data-theme='dark'] app-activity-tracker .activity-card h3 {
+  color: #83d49b;
+}
+
+html[data-theme='dark'] app-activity-tracker .activity-card p {
+  color: #b4c4b8;
+}
+
+html[data-theme='dark'] app-activity-tracker .activity-card strong {
+  color: #d6eadb;
+}
+
+/* Delete button */
+html[data-theme='dark'] app-activity-tracker .delete-button {
+  border-color: #754343;
+  background: #392323;
+  color: #ffaaa2;
+}
+
+html[data-theme='dark'] app-activity-tracker .delete-button:hover {
+  background: #503030;
+}
+
+/* Footer */
+html[data-theme='dark'] app-activity-tracker footer {
+  border-top-color: #405747;
+  background: #1e2d23;
+  color: #a1b3a6;
+}
+
+/* =================================
+   DARK THEME - ACTIVITY TRACKER
+================================= */
+
+html[data-theme='dark'] app-activity-tracker {
+  background: #142019;
+  color: #edf5ef;
+}
+
+html[data-theme='dark'] app-activity-tracker .navbar {
+  background: #1e2d23;
+  border-bottom-color: #405747;
+}
+
+html[data-theme='dark'] app-activity-tracker .brand {
+  color: #83d49b;
+}
+
+html[data-theme='dark'] app-activity-tracker .nav-links a {
+  color: #b4c4b8;
+}
+
+html[data-theme='dark'] app-activity-tracker .nav-links a:hover {
+  color: #83d49b;
+}
+
+html[data-theme='dark'] app-activity-tracker .tracker-header h1 {
+  color: #a5ddb5;
+}
+
+html[data-theme='dark'] app-activity-tracker .tracker-header p {
+  color: #b4c4b8;
+}
+
+html[data-theme='dark'] app-activity-tracker .activity-form-section,
+html[data-theme='dark'] app-activity-tracker .recorded-activities {
+  background: #1e2d23;
+  border-color: #405747;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+}
+
+html[data-theme='dark'] app-activity-tracker .activity-form-section h2,
+html[data-theme='dark'] app-activity-tracker .recorded-activities h2 {
+  color: #d6eadb;
+}
+
+html[data-theme='dark'] app-activity-tracker .form-group label {
+  color: #c4d5c8;
+}
+
+html[data-theme='dark'] app-activity-tracker .form-group input,
+html[data-theme='dark'] app-activity-tracker .form-group select,
+html[data-theme='dark'] app-activity-tracker .form-group textarea {
+  border-color: #405747;
+  background: #26382c;
+  color: #edf5ef;
+}
+
+html[data-theme='dark'] app-activity-tracker .form-group input:focus,
+html[data-theme='dark'] app-activity-tracker .form-group select:focus,
+html[data-theme='dark'] app-activity-tracker .form-group textarea:focus {
+  border-color: #65b982;
+  background: #26382c;
+  box-shadow: 0 0 0 3px rgba(101, 185, 130, 0.15);
+}
+
+html[data-theme='dark'] app-activity-tracker .form-group input::placeholder,
+html[data-theme='dark'] app-activity-tracker .form-group textarea::placeholder {
+  color: #91a697;
+}
+
+html[data-theme='dark'] app-activity-tracker .activity-form-section button[type='submit'] {
+  background: #398b57;
+}
+
+html[data-theme='dark'] app-activity-tracker .activity-form-section button[type='submit']:hover:not(:disabled) {
+  background: #2f7549;
+}
+
+html[data-theme='dark'] app-activity-tracker .activity-form-section button[type='submit']:disabled {
+  background: #526f5b;
+}
+
+html[data-theme='dark'] app-activity-tracker .recorded-activities > p {
+  border-color: #405747;
+  background: #26382c;
+  color: #b4c4b8;
+}
+
+html[data-theme='dark'] app-activity-tracker .activity-card {
+  border-color: #405747;
+  border-left-color: #65b982;
+  background: #26382c;
+}
+
+html[data-theme='dark'] app-activity-tracker .activity-card:hover {
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.2);
+}
+
+html[data-theme='dark'] app-activity-tracker .activity-card h3 {
+  color: #83d49b;
+}
+
+html[data-theme='dark'] app-activity-tracker .activity-card p {
+  color: #b4c4b8;
+}
+
+html[data-theme='dark'] app-activity-tracker .activity-card strong {
+  color: #d6eadb;
+}
+
+html[data-theme='dark'] app-activity-tracker .delete-button {
+  border-color: #754343;
+  background: #392323;
+  color: #ffaaa2;
+}
+
+html[data-theme='dark'] app-activity-tracker .delete-button:hover {
+  background: #503030;
+}
+
+html[data-theme='dark'] app-activity-tracker footer {
+  border-top-color: #405747;
+  background: #1e2d23;
+  color: #a1b3a6;
+}

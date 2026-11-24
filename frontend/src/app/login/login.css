@@ -105,3 +105,57 @@ h2 {
     padding: 24px;
   }
 }
+
+
+/* Login — dark theme */
+html[data-theme='dark'] app-login {
+  background: #142019;
+}
+
+html[data-theme='dark'] app-login .card {
+  background: #1e2d23;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+html[data-theme='dark'] app-login h1 {
+  color: #83d49b;
+}
+
+html[data-theme='dark'] app-login h2,
+html[data-theme='dark'] app-login .form-label {
+  color: #edf5ef;
+}
+
+html[data-theme='dark'] app-login p {
+  color: #b4c4b8;
+}
+
+html[data-theme='dark'] app-login .form-control {
+  background: #26382c;
+  border-color: #405747;
+  color: #edf5ef;
+}
+
+html[data-theme='dark'] app-login .form-control::placeholder {
+  color: #9aafa0;
+}
+
+html[data-theme='dark'] app-login .form-control:focus {
+  outline-color: #83d49b;
+}
+
+html[data-theme='dark'] app-login .btn-success {
+  background: #398657;
+  border-color: #398657;
+  color: #ffffff;
+}
+
+html[data-theme='dark'] app-login .btn-outline-success {
+  background: transparent;
+  border-color: #65b982;
+  color: #83d49b;
+}
+
+html[data-theme='dark'] app-login .btn-outline-success:hover {
+  background: #26382c;
+}

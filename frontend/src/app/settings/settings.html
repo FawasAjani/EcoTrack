@@ -1,1 +1,117 @@
-<p>settings works!</p>
+
+<div class="settings-page">
+
+  <header class="settings-header">
+    <div>
+      <h1>Settings</h1>
+      <p>Manage your EcoTrack account and preferences.</p>
+    </div>
+
+    <a routerLink="/home" class="back-link">
+      Back to Dashboard
+    </a>
+  </header>
+
+  <!-- Loading message -->
+  <div *ngIf="loading" class="settings-message">
+    Loading your account details...
+  </div>
+
+  <!-- Error message -->
+  <div *ngIf="errorMessage" class="message error-message" role="alert">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Success message -->
+  <div *ngIf="successMessage" class="message success-message" role="status">
+    {{ successMessage }}
+  </div>
+
+  <ng-container *ngIf="!loading">
+
+    <!-- Account and Profile -->
+    <section class="settings-section">
+      <h2>Account and Profile</h2>
+      <p>View and update your EcoTrack profile information.</p>
+
+      <div class="form-group">
+        <label for="email">Email address</label>
+        <input
+          id="email"
+          type="email"
+          [value]="email"
+          readonly
+        />
+        <small>
+          Your email address is managed by your authentication account.
+        </small>
+      </div>
+
+      <form (ngSubmit)="saveProfile()">
+        <div class="form-group">
+          <label for="fullName">Full name</label>
+          <input
+            id="fullName"
+            name="fullName"
+            type="text"
+            [(ngModel)]="fullName"
+            maxlength="100"
+            required
+            placeholder="Enter your full name"
+          />
+        </div>
+
+        <button type="submit" [disabled]="saving || loggingOut">
+          {{ saving ? 'Saving...' : 'Save Profile' }}
+        </button>
+      </form>
+    </section>
+
+    <section class="settings-section">
+  <h2>Preferences</h2>
+  <p>Customise your EcoTrack experience.</p>
+
+  <div class="form-group">
+    <label for="themePreference">Appearance</label>
+
+    <select
+      id="themePreference"
+      name="themePreference"
+      [(ngModel)]="themePreference"
+      (ngModelChange)="onThemeChange($event)"
+    >
+      <option value="light">Light</option>
+      <option value="dark">Dark</option>
+      <option value="system">System default</option>
+    </select>
+
+    <small>Choose how EcoTrack looks on this device.</small>
+  </div>
+</section>
+
+    <!-- Security -->
+    <section class="settings-section">
+      <h2>Security</h2>
+      <p>Manage your password and account security.</p>
+
+      <div class="settings-placeholder">
+        Password management will be available here.
+      </div>
+    </section>
+
+    <!-- Account Logout -->
+    <section class="settings-section logout-section">
+      <h2>Log Out</h2>
+      <p>
+        Sign out of your EcoTrack account on this device.
+      </p>
+
+      <button
+        type="button"
+        class="logout-button"
+        (click)="logout()"
+        [disabled]="loggingOut || saving"
+      >
+        {{ loggingOut ? 'Logging out...' : 'Log Out' }}
+      </button>
+    </section>

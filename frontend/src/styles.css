@@ -1,1 +1,1028 @@
-/* You can add global styles to this file, and also import other style files */
+
+/* EcoTrack global theme */
+
+:root,
+html[data-theme='light'] {
+  color-scheme: light;
+  --page-background: #f4f8f5;
+  --card-background: #ffffff;
+  --surface-background: #f8fbf8;
+  --text-primary: #24352b;
+  --text-secondary: #66756b;
+  --border-color: #dce7df;
+  --input-background: #ffffff;
+  --input-text: #24352b;
+  --primary-color: #2e7d4f;
+  --primary-hover: #256641;
+  --success-color: #237a45;
+  --error-color: #c0392b;
+}
+
+html[data-theme='dark'] {
+  color-scheme: dark;
+  --page-background: #142019;
+  --card-background: #1e2d23;
+  --surface-background: #26382c;
+  --text-primary: #edf5ef;
+  --text-secondary: #b4c4b8;
+  --border-color: #405747;
+  --input-background: #26382c;
+  --input-text: #edf5ef;
+  --primary-color: #65b982;
+  --primary-hover: #7dcc96;
+  --success-color: #83d49b;
+  --error-color: #ff8e83;
+}
+
+html,
+body {
+  min-height: 100%;
+  margin: 0;
+  background: var(--page-background);
+  color: var(--text-primary);
+  font-family: Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Signup — dark theme */
+html[data-theme='dark'] .container {
+  background: #142019;
+}
+
+html[data-theme='dark'] .card {
+  background: #1e2d23;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+html[data-theme='dark'] .card h1 {
+  color: #83d49b;
+}
+
+html[data-theme='dark'] .card h2,
+html[data-theme='dark'] .card .form-label {
+  color: #edf5ef;
+}
+
+html[data-theme='dark'] .card-body > p {
+  color: #b4c4b8;
+}
+
+html[data-theme='dark'] .card .form-control {
+  background: #26382c;
+  border-color: #405747;
+  color: #edf5ef;
+}
+
+html[data-theme='dark'] .card .form-control::placeholder {
+  color: #9aafa0;
+}
+
+html[data-theme='dark'] .card .form-control:focus {
+  border-color: #83d49b;
+  box-shadow: 0 0 4px rgba(131, 212, 155, 0.3);
+}
+
+html[data-theme='dark'] .card .btn-success {
+  background: #398657;
+  color: #ffffff;
+}
+
+html[data-theme='dark'] .card .btn-success:hover {
+  background: #469b67;
+}
+
+html[data-theme='dark'] .card .btn-outline-success {
+  background: transparent;
+  color: #83d49b;
+  border-color: #65b982;
+}
+
+html[data-theme='dark'] .card .btn-outline-success:hover {
+  background: #26382c;
+}
+
+html[data-theme='dark'] .card .form-message.error {
+  color: #ffaaa2;
+  background: #492b29;
+}
+
+html[data-theme='dark'] .card .form-message.success {
+  color: #a5e5b5;
+  background: #24432e;
+}
+
+
+/* =================================
+   DARK THEME - DASHBOARD
+================================= */
+
+html[data-theme='dark'] app-home,
+html[data-theme='dark'] app-home .home-page {
+  background: #142019;
+  color: #edf5ef;
+}
+
+html[data-theme='dark'] app-home .navbar,
+html[data-theme='dark'] app-home .footer {
+  background: #1e2d23;
+  border-color: #405747;
+  color: #a1b3a6;
+}
+
+html[data-theme='dark'] app-home .brand,
+html[data-theme='dark'] app-home .nav-links a:hover,
+html[data-theme='dark'] app-home .nav-links a.active {
+  color: #83d49b;
+}
+
+html[data-theme='dark'] app-home .nav-links a {
+  color: #b4c4b8;
+}
+
+html[data-theme='dark'] app-home .welcome-section {
+  background: linear-gradient(120deg, #203a29, #26382c);
+  border-color: #405747;
+}
+
+html[data-theme='dark'] app-home .welcome-text h1,
+html[data-theme='dark'] app-home .dashboard-heading h2,
+html[data-theme='dark'] app-home .panel-heading h2,
+html[data-theme='dark'] app-home .section-heading h2,
+html[data-theme='dark'] app-home .feature-card h3 {
+  color: #d6eadb;
+}
+
+html[data-theme='dark'] app-home .welcome-label,
+html[data-theme='dark'] app-home .section-label {
+  color: #83d49b;
+}
+
+html[data-theme='dark'] app-home .welcome-text p,
+html[data-theme='dark'] app-home .dashboard-heading p,
+html[data-theme='dark'] app-home .section-heading p,
+html[data-theme='dark'] app-home .feature-card p {
+  color: #b4c4b8;
+}
+
+html[data-theme='dark'] app-home .welcome-icon,
+html[data-theme='dark'] app-home .card-icon,
+html[data-theme='dark'] app-home .panel-icon,
+html[data-theme='dark'] app-home .feature-icon {
+  background: #26382c;
+}
+
+html[data-theme='dark'] app-home .summary-card,
+html[data-theme='dark'] app-home .dashboard-panel,
+html[data-theme='dark'] app-home .feature-card,
+html[data-theme='dark'] app-home .dashboard-status {
+  background: #1e2d23;
+  border-color: #405747;
+  color: #edf5ef;
+}
+
+html[data-theme='dark'] app-home .summary-card h3,
+html[data-theme='dark'] app-home .period-summary h3,
+html[data-theme='dark'] app-home .daily-breakdown h3 {
+  color: #c4d5c8;
+}
+
+html[data-theme='dark'] app-home .summary-value,
+html[data-theme='dark'] app-home .period-card strong,
+html[data-theme='dark'] app-home .daily-values strong,
+html[data-theme='dark'] app-home .feature-link {
+  color: #83d49b;
+}
+
+html[data-theme='dark'] app-home .summary-card small,
+html[data-theme='dark'] app-home .period-card span,
+html[data-theme='dark'] app-home .period-dates,
+html[data-theme='dark'] app-home .daily-values {
+  color: #b4c4b8;
+}
+
+html[data-theme='dark'] app-home .period-summary {
+  border-color: #405747;
+}
+
+html[data-theme='dark'] app-home .period-summary:last-child {
+  background: #26382c;
+  border-color: #405747;
+}
+
+html[data-theme='dark'] app-home .period-card,
+html[data-theme='dark'] app-home .daily-values span {
+  background: #26382c;
+  border-color: #405747;
+  color: #b4c4b8;
+}
+
+html[data-theme='dark'] app-home .daily-values strong {
+  background: #24432e;
+}
+
+html[data-theme='dark'] app-home .daily-emissions-row {
+  border-color: #405747;
+}
+
+html[data-theme='dark'] app-home .daily-date {
+  color: #83d49b;
+}
+
+html[data-theme='dark'] app-home .chart-placeholder {
+  background: #26382c;
+  border-color: #405747;
+}
+
+html[data-theme='dark'] app-home .chart-placeholder h3 {
+  color: #d6eadb;
+}
+
+html[data-theme='dark'] app-home .chart-placeholder p {
+  color: #b4c4b8;
+}
+
+html[data-theme='dark'] app-home .tip-content {
+  background: #203a29;
+  border-left-color: #65b982;
+}
+
+html[data-theme='dark'] app-home .tip-content h3 {
+  color: #a5ddb5;
+}
+
+html[data-theme='dark'] app-home .tip-content p {
+  color: #c4d5c8;
+}
+
+html[data-theme='dark'] app-home .primary-button,
+html[data-theme='dark'] app-home .retry-button {
+  background: #398b57;
+  color: #ffffff;
+}
+
+html[data-theme='dark'] app-home .primary-button:hover,
+html[data-theme='dark'] app-home .retry-button:hover {
+  background: #2f7549;
+}
+
+
+/* =================================
+   DARK THEME - ACTIVITY TRACKER
+================================= */
+
+html[data-theme='dark'] app-activity-tracker {
+  background: #142019;
+  color: #edf5ef;
+}
+
+html[data-theme='dark'] app-activity-tracker .navbar {
+  background: #1e2d23;
+  border-bottom-color: #405747;
+}
+
+html[data-theme='dark'] app-activity-tracker .brand {
+  color: #83d49b;
+}
+
+html[data-theme='dark'] app-activity-tracker .nav-links a {
+  color: #b4c4b8;
+}
+
+html[data-theme='dark'] app-activity-tracker .nav-links a:hover {
+  color: #83d49b;
+}
+
+html[data-theme='dark'] app-activity-tracker .tracker-header h1 {
+  color: #a5ddb5;
+}
+
+html[data-theme='dark'] app-activity-tracker .tracker-header p {
+  color: #b4c4b8;
+}
+
+html[data-theme='dark'] app-activity-tracker .activity-form-section,
+html[data-theme='dark'] app-activity-tracker .recorded-activities {
+  background: #1e2d23;
+  border-color: #405747;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+}
+
+html[data-theme='dark'] app-activity-tracker .activity-form-section h2,
+html[data-theme='dark'] app-activity-tracker .recorded-activities h2 {
+  color: #d6eadb;
+}
+
+html[data-theme='dark'] app-activity-tracker .form-group label {
+  color: #c4d5c8;
+}
+
+html[data-theme='dark'] app-activity-tracker .form-group input,
+html[data-theme='dark'] app-activity-tracker .form-group select,
+html[data-theme='dark'] app-activity-tracker .form-group textarea {
+  border-color: #405747;
+  background: #26382c;
+  color: #edf5ef;
+}
+
+html[data-theme='dark'] app-activity-tracker .form-group input:focus,
+html[data-theme='dark'] app-activity-tracker .form-group select:focus,
+html[data-theme='dark'] app-activity-tracker .form-group textarea:focus {
+  border-color: #65b982;
+  background: #26382c;
+  box-shadow: 0 0 0 3px rgba(101, 185, 130, 0.15);
+}
+
+html[data-theme='dark'] app-activity-tracker .form-group input::placeholder,
+html[data-theme='dark'] app-activity-tracker .form-group textarea::placeholder {
+  color: #91a697;
+}
+
+html[data-theme='dark'] app-activity-tracker .activity-form-section button[type='submit'] {
+  background: #398b57;
+}
+
+html[data-theme='dark'] app-activity-tracker .activity-form-section button[type='submit']:hover:not(:disabled) {
+  background: #2f7549;
+}
+
+html[data-theme='dark'] app-activity-tracker .activity-form-section button[type='submit']:disabled {
+  background: #526f5b;
+}
+
+html[data-theme='dark'] app-activity-tracker .recorded-activities > p {
+  border-color: #405747;
+  background: #26382c;
+  color: #b4c4b8;
+}
+
+html[data-theme='dark'] app-activity-tracker .activity-card {
+  border-color: #405747;
+  border-left-color: #65b982;
+  background: #26382c;
+}
+
+html[data-theme='dark'] app-activity-tracker .activity-card:hover {
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.2);
+}
+
+html[data-theme='dark'] app-activity-tracker .activity-card h3 {
+  color: #83d49b;
+}
+
+html[data-theme='dark'] app-activity-tracker .activity-card p {
+  color: #b4c4b8;
+}
+
+html[data-theme='dark'] app-activity-tracker .activity-card strong {
+  color: #d6eadb;
+}
+
+html[data-theme='dark'] app-activity-tracker .delete-button {
+  border-color: #754343;
+  background: #392323;
+  color: #ffaaa2;
+}
+
+html[data-theme='dark'] app-activity-tracker .delete-button:hover {
+  background: #503030;
+}
+
+html[data-theme='dark'] app-activity-tracker footer {
+  border-top-color: #405747;
+  background: #1e2d23;
+  color: #a1b3a6;
+}
+
+
+
+/* =================================
+   DARK THEME - WEEKLY SUMMARY
+================================= */
+
+html[data-theme='dark'] app-weekly-summary,
+html[data-theme='dark'] app-weekly-summary .weekly-page {
+  background: #142019;
+  color: #edf5ef;
+}
+
+/* Navigation */
+html[data-theme='dark'] app-weekly-summary .navbar,
+html[data-theme='dark'] app-weekly-summary .footer {
+  background: #1e2d23;
+  border-color: #405747;
+}
+
+html[data-theme='dark'] app-weekly-summary .brand {
+  color: #83d49b;
+}
+
+html[data-theme='dark'] app-weekly-summary .nav-links a {
+  color: #b4c4b8;
+}
+
+html[data-theme='dark'] app-weekly-summary .nav-links a:hover,
+html[data-theme='dark'] app-weekly-summary .nav-links a.active {
+  color: #83d49b;
+  border-bottom-color: #65b982;
+}
+
+/* Page heading */
+html[data-theme='dark'] app-weekly-summary .section-label {
+  color: #83d49b;
+}
+
+html[data-theme='dark'] app-weekly-summary .page-heading h1 {
+  color: #a5ddb5;
+}
+
+html[data-theme='dark'] app-weekly-summary .page-heading p,
+html[data-theme='dark'] app-weekly-summary .summary-intro p {
+  color: #b4c4b8;
+}
+
+/* Weekly overview */
+html[data-theme='dark'] app-weekly-summary .summary-intro {
+  background: linear-gradient(120deg, #203a29, #26382c);
+  border-color: #405747;
+}
+
+html[data-theme='dark'] app-weekly-summary .summary-intro h2,
+html[data-theme='dark'] app-weekly-summary .panel-heading h2 {
+  color: #d6eadb;
+}
+
+html[data-theme='dark'] app-weekly-summary .week-icon,
+html[data-theme='dark'] app-weekly-summary .card-icon,
+html[data-theme='dark'] app-weekly-summary .panel-icon {
+  background: #26382c;
+}
+
+/* Summary cards */
+html[data-theme='dark'] app-weekly-summary .summary-card,
+html[data-theme='dark'] app-weekly-summary .content-panel {
+  background: #1e2d23;
+  border-color: #405747;
+  color: #edf5ef;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+html[data-theme='dark'] app-weekly-summary .summary-card:hover {
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.25);
+}
+
+html[data-theme='dark'] app-weekly-summary .summary-card h3 {
+  color: #c4d5c8;
+}
+
+html[data-theme='dark'] app-weekly-summary .summary-value {
+  color: #83d49b;
+}
+
+html[data-theme='dark'] app-weekly-summary .summary-card small {
+  color: #a1b3a6;
+}
+
+/* Chart controls */
+html[data-theme='dark'] app-weekly-summary .chart-controls label {
+  color: #c4d5c8;
+}
+
+html[data-theme='dark'] app-weekly-summary .chart-controls select {
+  background: #26382c;
+  border-color: #405747;
+  color: #edf5ef;
+}
+
+html[data-theme='dark'] app-weekly-summary .chart-controls select:focus {
+  border-color: #65b982;
+  box-shadow: 0 0 0 3px rgba(101, 185, 130, 0.15);
+}
+
+html[data-theme='dark'] app-weekly-summary .chart-description,
+html[data-theme='dark'] app-weekly-summary .chart-note {
+  color: #b4c4b8;
+}
+
+html[data-theme='dark'] app-weekly-summary .chart-container {
+  background: #26382c;
+  border-color: #405747;
+}
+
+/* Activity breakdown */
+html[data-theme='dark'] app-weekly-summary .activity-item {
+  background: #26382c;
+  border-color: #405747;
+  border-left-color: #65b982;
+}
+
+html[data-theme='dark'] app-weekly-summary .activity-details h3 {
+  color: #83d49b;
+}
+
+html[data-theme='dark'] app-weekly-summary .activity-details p {
+  color: #b4c4b8;
+}
+
+html[data-theme='dark'] app-weekly-summary .activity-details strong {
+  color: #d6eadb;
+}
+
+html[data-theme='dark'] app-weekly-summary .emissions-result {
+  background: #203a29;
+}
+
+html[data-theme='dark'] app-weekly-summary .emissions-result > strong,
+html[data-theme='dark'] app-weekly-summary .emissions-result p {
+  color: #a5ddb5;
+}
+
+html[data-theme='dark'] app-weekly-summary .emissions-result small {
+  color: #b4c4b8;
+}
+
+/* Daily breakdown */
+html[data-theme='dark'] app-weekly-summary .daily-item {
+  background: #26382c;
+  border-color: #405747;
+}
+
+html[data-theme='dark'] app-weekly-summary .daily-item h3 {
+  color: #83d49b;
+}
+
+html[data-theme='dark'] app-weekly-summary .daily-item small {
+  color: #a1b3a6;
+}
+
+html[data-theme='dark'] app-weekly-summary .daily-item p,
+html[data-theme='dark'] app-weekly-summary .daily-emissions p {
+  color: #c4d5c8;
+}
+
+/* Empty states */
+html[data-theme='dark'] app-weekly-summary .empty-state {
+  background: #26382c;
+  border-color: #405747;
+}
+
+html[data-theme='dark'] app-weekly-summary .empty-state h3 {
+  color: #a5ddb5;
+}
+
+html[data-theme='dark'] app-weekly-summary .empty-state p {
+  color: #b4c4b8;
+}
+
+/* Buttons and links */
+html[data-theme='dark'] app-weekly-summary .primary-button {
+  background: #398b57;
+  color: #ffffff;
+}
+
+html[data-theme='dark'] app-weekly-summary .primary-button:hover {
+  background: #2f7549;
+}
+
+html[data-theme='dark'] app-weekly-summary .back-link {
+  color: #83d49b;
+}
+
+/* Footer */
+html[data-theme='dark'] app-weekly-summary .footer p {
+  color: #a1b3a6;
+}
+
+
+
+/* =================================
+   DARK THEME - FOOD TRACKER
+================================= */
+
+html[data-theme='dark'] app-food-tracker {
+  display: block;
+  min-height: 100vh;
+  background: #142019;
+  color: #edf5ef;
+}
+
+/* Navigation */
+html[data-theme='dark'] app-food-tracker .navbar,
+html[data-theme='dark'] app-food-tracker footer {
+  background: #1e2d23;
+  border-color: #405747;
+}
+
+html[data-theme='dark'] app-food-tracker .brand,
+html[data-theme='dark'] app-food-tracker .food-entry-card h3,
+html[data-theme='dark'] app-food-tracker .food-information h3 {
+  color: #83d49b;
+}
+
+html[data-theme='dark'] app-food-tracker .nav-links a {
+  color: #b4c4b8;
+}
+
+html[data-theme='dark'] app-food-tracker .nav-links a:hover {
+  color: #83d49b;
+}
+
+/* Page heading */
+html[data-theme='dark'] app-food-tracker .tracker-header h1 {
+  color: #a5ddb5;
+}
+
+html[data-theme='dark'] app-food-tracker .tracker-header p,
+html[data-theme='dark'] app-food-tracker .section-description {
+  color: #b4c4b8;
+}
+
+/* Main sections */
+html[data-theme='dark'] app-food-tracker .food-form-section,
+html[data-theme='dark'] app-food-tracker .food-summary,
+html[data-theme='dark'] app-food-tracker .recorded-foods,
+html[data-theme='dark'] app-food-tracker .food-catalogue {
+  background: #1e2d23;
+  border-color: #405747;
+  color: #edf5ef;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+}
+
+html[data-theme='dark'] app-food-tracker .food-form-section h2,
+html[data-theme='dark'] app-food-tracker .food-summary h2,
+html[data-theme='dark'] app-food-tracker .recorded-foods h2,
+html[data-theme='dark'] app-food-tracker .food-catalogue h2 {
+  color: #d6eadb;
+}
+
+/* Form */
+html[data-theme='dark'] app-food-tracker .form-group label {
+  color: #c4d5c8;
+}
+
+html[data-theme='dark'] app-food-tracker .form-group input,
+html[data-theme='dark'] app-food-tracker .form-group select {
+  background: #26382c;
+  border-color: #405747;
+  color: #edf5ef;
+}
+
+html[data-theme='dark'] app-food-tracker .form-group input:focus,
+html[data-theme='dark'] app-food-tracker .form-group select:focus {
+  background: #26382c;
+  border-color: #65b982;
+  box-shadow: 0 0 0 3px rgba(101, 185, 130, 0.15);
+}
+
+/* Emissions preview */
+html[data-theme='dark'] app-food-tracker .emission-preview {
+  background: #203a29;
+  border-color: #405747;
+  border-left-color: #65b982;
+}
+
+html[data-theme='dark'] app-food-tracker .emission-preview h3,
+html[data-theme='dark'] app-food-tracker .preview-value {
+  color: #83d49b;
+}
+
+html[data-theme='dark'] app-food-tracker .emission-preview p {
+  color: #b4c4b8;
+}
+
+/* Submit button */
+html[data-theme='dark'] app-food-tracker .food-form-section button[type='submit'] {
+  background: #398b57;
+  color: #ffffff;
+}
+
+html[data-theme='dark'] app-food-tracker .food-form-section button[type='submit']:hover:not(:disabled) {
+  background: #2f7549;
+}
+
+/* Messages */
+html[data-theme='dark'] app-food-tracker .status-message,
+html[data-theme='dark'] app-food-tracker .empty-message {
+  background: #26382c;
+  border-color: #405747;
+  color: #b4c4b8;
+}
+
+html[data-theme='dark'] app-food-tracker .error-message {
+  background: #392323;
+  border-color: #754343;
+  color: #ffaaa2;
+}
+
+html[data-theme='dark'] app-food-tracker .success-message {
+  background: #203a29;
+  border-color: #426c4d;
+  color: #a5ddb5;
+}
+
+/* Summary cards */
+html[data-theme='dark'] app-food-tracker .summary-card {
+  background: #26382c;
+  border-color: #405747;
+  border-left-color: #65b982;
+}
+
+html[data-theme='dark'] app-food-tracker .summary-card h3 {
+  color: #c4d5c8;
+}
+
+html[data-theme='dark'] app-food-tracker .summary-value {
+  color: #83d49b;
+}
+
+html[data-theme='dark'] app-food-tracker .summary-card span {
+  color: #a1b3a6;
+}
+
+/* Refresh button */
+html[data-theme='dark'] app-food-tracker .refresh-button {
+  background: #26382c;
+  border-color: #405747;
+  color: #83d49b;
+}
+
+html[data-theme='dark'] app-food-tracker .refresh-button:hover:not(:disabled) {
+  background: #304936;
+}
+
+/* Food history */
+html[data-theme='dark'] app-food-tracker .food-entry-card,
+html[data-theme='dark'] app-food-tracker .food-item {
+  background: #26382c;
+  border-color: #405747;
+  border-left-color: #65b982;
+}
+
+html[data-theme='dark'] app-food-tracker .food-entry-card p,
+html[data-theme='dark'] app-food-tracker .food-information p {
+  color: #b4c4b8;
+}
+
+html[data-theme='dark'] app-food-tracker .food-entry-card strong,
+html[data-theme='dark'] app-food-tracker .emission-factor {
+  color: #d6eadb;
+}
+
+html[data-theme='dark'] app-food-tracker .entry-date,
+html[data-theme='dark'] app-food-tracker .history-note {
+  color: #a1b3a6;
+}
+
+html[data-theme='dark'] app-food-tracker .saved-emissions {
+  color: #83d49b !important;
+}
+
+html[data-theme='dark'] app-food-tracker .entry-details {
+  border-top-color: #405747;
+}
+
+/* Delete button */
+html[data-theme='dark'] app-food-tracker .delete-button {
+  background: #392323;
+  border-color: #754343;
+  color: #ffaaa2;
+}
+
+html[data-theme='dark'] app-food-tracker .delete-button:hover:not(:disabled) {
+  background: #4a2929;
+}
+
+/* Footer */
+html[data-theme='dark'] app-food-tracker footer {
+  color: #a1b3a6;
+}
+
+/* =================================
+   DARK THEME - SETTINGS
+================================= */
+
+html[data-theme='dark'] app-settings {
+  color: #edf5ef;
+  background: #142019;
+}
+
+html[data-theme='dark'] app-settings .settings-page {
+  background: #142019;
+}
+
+html[data-theme='dark'] app-settings .settings-header h1 {
+  color: #a5ddb5;
+}
+
+html[data-theme='dark'] app-settings .settings-header p,
+html[data-theme='dark'] app-settings .settings-section > p {
+  color: #b4c4b8;
+}
+
+html[data-theme='dark'] app-settings .back-link {
+  border-color: #405747;
+  background: #1e2d23;
+  color: #83d49b;
+}
+
+html[data-theme='dark'] app-settings .back-link:hover {
+  background: #26382c;
+}
+
+html[data-theme='dark'] app-settings .settings-section {
+  border-color: #405747;
+  background: #1e2d23;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+html[data-theme='dark'] app-settings .settings-section h2 {
+  color: #d6eadb;
+}
+
+html[data-theme='dark'] app-settings .form-group label {
+  color: #b4d5bd;
+}
+
+html[data-theme='dark'] app-settings .form-group input,
+html[data-theme='dark'] app-settings .form-group select {
+  border-color: #405747;
+  background: #26382c;
+  color: #edf5ef;
+}
+
+html[data-theme='dark'] app-settings .form-group input:focus,
+html[data-theme='dark'] app-settings .form-group select:focus {
+  border-color: #65b982;
+  box-shadow: 0 0 0 3px rgba(101, 185, 130, 0.15);
+}
+
+html[data-theme='dark'] app-settings .form-group input[readonly] {
+  background: #26382c;
+  color: #b4c4b8;
+}
+
+html[data-theme='dark'] app-settings .form-group small {
+  color: #a1b3a6;
+}
+
+html[data-theme='dark'] app-settings .settings-section button {
+  background: #398b57;
+}
+
+html[data-theme='dark'] app-settings .settings-section button:hover:not(:disabled) {
+  background: #2f7549;
+}
+
+html[data-theme='dark'] app-settings .settings-placeholder {
+  border-color: #405747;
+  background: #26382c;
+  color: #b4c4b8;
+}
+
+html[data-theme='dark'] app-settings .settings-message {
+  border-color: #405747;
+  background: #26382c;
+  color: #c4ddca;
+}
+
+html[data-theme='dark'] app-settings .error-message {
+  border-color: #754343;
+  background: #392323;
+  color: #ffaaa2;
+}
+
+html[data-theme='dark'] app-settings .success-message {
+  border-color: #426c4d;
+  background: #203a29;
+  color: #a5ddb5;
+}
+
+html[data-theme='dark'] app-settings .logout-section {
+  border-color: #754343;
+}
+
+html[data-theme='dark'] app-settings .logout-section h2 {
+  color: #ffaaa2;
+}
+
+html[data-theme='dark'] app-settings .logout-button {
+  background: #a83e3e !important;
+}
+
+html[data-theme='dark'] app-settings .logout-button:hover:not(:disabled) {
+  background: #8d3232 !important;
+}
+
+
+/* Electricity Tracker — dark theme */
+html[data-theme='dark'] app-electricity-tracker .electricity-page {
+  background: #142019;
+  color: #edf5ef;
+}
+
+html[data-theme='dark'] app-electricity-tracker .navbar,
+html[data-theme='dark'] app-electricity-tracker .summary-card,
+html[data-theme='dark'] app-electricity-tracker .tracker-card,
+html[data-theme='dark'] app-electricity-tracker .history-card {
+  background: #1e2d23;
+  border-color: #405747;
+}
+
+html[data-theme='dark'] app-electricity-tracker .brand,
+html[data-theme='dark'] app-electricity-tracker .nav-links a:hover,
+html[data-theme='dark'] app-electricity-tracker .nav-links a.active,
+html[data-theme='dark'] app-electricity-tracker .summary-card strong,
+html[data-theme='dark'] app-electricity-tracker .eyebrow {
+  color: #83d49b;
+}
+
+html[data-theme='dark'] app-electricity-tracker .nav-links a,
+html[data-theme='dark'] app-electricity-tracker .page-header > p:last-child,
+html[data-theme='dark'] app-electricity-tracker .section-heading p,
+html[data-theme='dark'] app-electricity-tracker .summary-label,
+html[data-theme='dark'] app-electricity-tracker .factor-note p,
+html[data-theme='dark'] app-electricity-tracker .saved-result p,
+html[data-theme='dark'] app-electricity-tracker td {
+  color: #b4c4b8;
+}
+
+html[data-theme='dark'] app-electricity-tracker .page-header h1,
+html[data-theme='dark'] app-electricity-tracker .section-heading h2,
+html[data-theme='dark'] app-electricity-tracker .form-group label,
+html[data-theme='dark'] app-electricity-tracker .factor-note strong,
+html[data-theme='dark'] app-electricity-tracker .saved-result h3,
+html[data-theme='dark'] app-electricity-tracker th {
+  color: #edf5ef;
+}
+
+html[data-theme='dark'] app-electricity-tracker .form-group input {
+  background: #26382c;
+  color: #edf5ef;
+  border-color: #405747;
+}
+
+html[data-theme='dark'] app-electricity-tracker .form-group input:focus {
+  border-color: #83d49b;
+  box-shadow: 0 0 0 3px rgba(131, 212, 155, 0.12);
+}
+
+html[data-theme='dark'] app-electricity-tracker .form-group small,
+html[data-theme='dark'] app-electricity-tracker .summary-unit,
+html[data-theme='dark'] app-electricity-tracker .source-text,
+html[data-theme='dark'] app-electricity-tracker .page-footer {
+  color: #9aafa0 !important;
+}
+
+html[data-theme='dark'] app-electricity-tracker .factor-note,
+html[data-theme='dark'] app-electricity-tracker .saved-result,
+html[data-theme='dark'] app-electricity-tracker .empty-message,
+html[data-theme='dark'] app-electricity-tracker thead {
+  background: #26382c;
+}
+
+html[data-theme='dark'] app-electricity-tracker .factor-note {
+  border-left-color: #65b982;
+}
+
+html[data-theme='dark'] app-electricity-tracker .saved-result {
+  border-color: #405747;
+}
+
+html[data-theme='dark'] app-electricity-tracker .empty-message {
+  color: #b4c4b8;
+}
+
+html[data-theme='dark'] app-electricity-tracker th,
+html[data-theme='dark'] app-electricity-tracker td {
+  border-bottom-color: #405747;
+}
+
+html[data-theme='dark'] app-electricity-tracker .error-message {
+  background: #492b29;
+  color: #ffaaa2;
+}
+
+html[data-theme='dark'] app-electricity-tracker .success-message {
+  background: #24432e;
+  color: #a5e5b5;
+}
+
+html[data-theme='dark'] app-electricity-tracker .save-button {
+  background: #398657;
+}
+
+html[data-theme='dark'] app-electricity-tracker .save-button:hover:not(:disabled) {
+  background: #469b67;
+}
+
+html[data-theme='dark'] app-electricity-tracker .delete-button {
+  background: #492b29;
+  border-color: #754541;
+  color: #ffaaa2;
+}
+
+html[data-theme='dark'] app-electricity-tracker .delete-button:hover:not(:disabled) {
+  background: #5a3431;
+}
