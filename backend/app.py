@@ -9,6 +9,7 @@ from routes.activities import activities_bp
 from routes.food import food_bp
 from routes.dashboard import dashboard_bp
 from routes.electricity import electricity_bp
+from routes.eco_assistant import eco_assistant_bp
 load_dotenv()
 
 app = Flask(__name__)
@@ -28,7 +29,7 @@ app.register_blueprint(activities_bp)
 app.register_blueprint(food_bp)
 app.register_blueprint(dashboard_bp)
 app.register_blueprint(electricity_bp)
-
+app.register_blueprint(eco_assistant_bp)
 @app.route("/api/health", methods=["GET"])
 def health_check():
     """Confirm that the EcoTrack backend is running."""

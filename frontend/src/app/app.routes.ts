@@ -8,7 +8,7 @@ import { WeeklySummary } from './weekly-summary/weekly-summary';
 import { FoodTracker } from './food-tracker/food-tracker';
 import { ElectricityTracker } from './electricity-tracker/electricity-tracker';
 import { Settings } from './settings/settings';
-
+import { EcoAssistant } from './eco-assistant/eco-assistant';
 export const routes: Routes = [
   { path: 'login', component: Login },
   { path: 'signup', component: Signup },
@@ -19,5 +19,6 @@ export const routes: Routes = [
   { path: 'food-tracker', component: FoodTracker },
   { path: 'electricity-tracker', component: ElectricityTracker },
   { path: 'settings', component: Settings },
+  { path: 'eco-assistant', component: EcoAssistant },
   { path: '', redirectTo: 'login', pathMatch: 'full' }
 ];

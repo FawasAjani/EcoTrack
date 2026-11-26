@@ -1,0 +1,151 @@
+
+<div class="assistant-container">
+
+  <div class="assistant-header">
+    <div>
+      <h1>Eco Assistant</h1>
+      <p>Your personal guide to making more sustainable choices.</p>
+    </div>
+
+    <div class="header-buttons">
+      <button
+        type="button"
+        class="back-button"
+        routerLink="/home">
+        Back to Dashboard
+      </button>
+
+      <button
+        type="button"
+        class="refresh-button"
+        (click)="loadRecommendations()"
+        [disabled]="loading">
+        {{ loading ? 'Loading...' : 'Refresh recommendations' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="intro-card">
+    <h2>Your sustainability insights</h2>
+    <p>
+      Recommendations are generated using your recorded
+      activity, food and electricity data.
+    </p>
+  </div>
+
+  <div *ngIf="loading" class="status-message">
+    Loading your recommendations...
+  </div>
+
+  <div *ngIf="errorMessage && !loading" class="error-message">
+    {{ errorMessage }}
+  </div>
+
+  <div
+    *ngIf="!loading && !errorMessage && recommendations.length === 0"
+    class="status-message">
+    No recommendations are currently available.
+  </div>
+
+  <div
+    *ngIf="!loading && !errorMessage && recommendations.length > 0"
+    class="recommendations-grid">
+
+    <article
+      class="recommendation-card"
+      *ngFor="let recommendation of recommendations">
+
+      <div class="card-top">
+        <span class="category">
+          {{ recommendation.category }}
+        </span>
+
+        <span
+          class="priority"
+          [class.high]="recommendation.priority === 'high'"
+          [class.medium]="recommendation.priority === 'medium'"
+          [class.low]="recommendation.priority === 'low'">
+          {{ recommendation.priority }}
+        </span>
+      </div>
+
+      <h3>{{ recommendation.title }}</h3>
+
+      <p>{{ recommendation.message }}</p>
+
+      <div class="impact-type">
+        Impact measurement: {{ recommendation.impact_type }}
+      </div>
+
+    </article>
+  </div>
+
+  <section class="chat-section">
+    <div class="chat-header">
+      <h2>Ask Eco Assistant</h2>
+      <p>
+        Ask questions about your sustainability habits
+        and get practical suggestions.
+      </p>
+    </div>
+
+    <div class="chat-messages">
+
+      <div
+        *ngIf="chatMessages.length === 0"
+        class="chat-welcome">
+        Hello! Ask me anything about reducing your
+        environmental impact.
+      </div>
+
+      <div
+        *ngFor="let message of chatMessages"
+        class="chat-message"
+        [class.user-message]="message.role === 'user'"
+        [class.assistant-message]="message.role === 'assistant'">
+
+        <span class="message-sender">
+          {{ message.role === 'user' ? 'You' : 'Eco Assistant' }}
+        </span>
+
+        <p>{{ message.content }}</p>
+      </div>
+
+      <div *ngIf="chatLoading" class="typing-message">
+        Eco Assistant is thinking...
+      </div>
+
+    </div>
+
+    <div *ngIf="chatError" class="chat-error">
+      {{ chatError }}
+    </div>
+
+    <form
+      class="chat-input-area"
+      (ngSubmit)="sendMessage()">
+
+      <textarea
+        name="messageInput"
+        [(ngModel)]="messageInput"
+        placeholder="Ask Eco Assistant a question..."
+        rows="2"
+        maxlength="2000"
+        [disabled]="chatLoading">
+      </textarea>
+
+      <button
+        type="submit"
+        class="send-button"
+        [disabled]="chatLoading || !messageInput.trim()">
+        {{ chatLoading ? 'Sending...' : 'Send' }}
+      </button>
+
+    </form>
+
+    <div class="character-count">
+      {{ messageInput.length }} / 2000 characters
+    </div>
+  </section>
+
+</div>
